@@ -1,0 +1,170 @@
+\chapter{A Proposta}
+\label{proposta}
+\section{Problema Geral}
+% #TXT_QUESTÕES
+% \textcolor{RedOrange}{Uma questão de pesquisa é a declaração de uma indagação específica que o pesquisador deseja responder para abordar o problema de pesquisa. A(s) questão(ões) de pesquisa resultam da revisão da literatura feita no item anteior e orienta(m) os tipos de dados a serem coletados, o tipo de estudo a ser desenvolvido e os resultados esperados. Escrever tantas questões quantas necessárias para a pesquisa.}
+ Para que um enxame de VANTs seja capaz de realizar uma missão com especificação de alto nível, como, por exemplo, o rastreamento de alvos ou a reconstrução 3D do ambiente, é preciso que os agentes sejam capazes de executar diversas subtarefas ao decorrer da missão. Tais subtarefas incluem: desvio de obstáculos, controle de formação, estabilização de voo, gerenciamento de energia, exploração e identificação de alvos.
+
+Os trabalhos descritos na seção anterior, que utilizaram o aprendizado multiagente, tratam essas subtarefas de modo isolado, ou seja, durante o treinamento, o algoritmo buscou aprender uma política específica para o tipo de tarefa/comportamento que cada trabalho se propôs a resolver.
+ 
+Um dos principais motivos para a utilização dessa metodologia, que individualiza o tratamento das subtarefas, decorre da complexidade de modelar uma única função de recompensa que consiga capturar a essência dessas atividades, permitindo que o agente possa aprendê-las simultaneamente dificultando a convergência para políticas satisfatórias durante o treinamento.
+ 
+ Esse tipo de recompensa é denominado monolítico, no qual um único valor real comprime todos os objetivos pretendidos pelo agente, essa abordagem sofre com os seguintes problemas:
+ \begin{itemize}
+     \item Ambiguidade na recompensa: uma recompensa escalar não é capaz de distinguir contribuições de subtarefas diferentes.
+     \item Ignorância hierarquica: missões complexas envolvem ações sequênciais, e apenas um número real não consegue codificar as hierarquias entre as ações.
+     \item Recompensas não-Markovianas: algumas tarefas necessitam de informações os sobre estados passados. 
+ \end{itemize}
+Portanto, o objetivo geral deste trabalho consiste em: 
+
+\textbf{Aprimorar o processo de treinamento em algoritmos de aprendizado por reforço multiagente (MARL), reduzindo o tempo de convergência para políticas ótimas por meio da exposição da estrutura interna da função recompensa, obtida a partir da modelagem da missão do enxame de VANTs com o uso de máquinas de recompensa.}
+
+\section{Visão Geral Framework}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5]{fig/framework_marl_rm_uav.png}   
+\caption{Diagrama framework MARL-RM}
+\fonte{Autor.}
+\label{fig:marl-rm}
+\end{figure}
+
+\subsection{Fluxo de informações}
+Na figura \ref{fig:marl-rm} informações trocadas entre cada componente do framework indicadas nos rótulos sobre as setas, são definidas como:
+\begin{itemize}
+    \item \textbf{Observações} ($o_t$): observação parcial que o agente tem do ambiente no tempo considerado. Informações como GPS, pose do drone, imagem da camêra, sensor LiDAR e informações derivadas da comunicação com outros UAVs nas proximidades. 
+    \item \textbf{Ação} ($a_t$): ação produzida pela política do agente realizada no ambiente.
+    \item \textbf{Estado} ($q_t$): representa o estado no qual a máquina de recompensa se encontra no momento.
+    \item \textbf{Recompensa} ($r_t$): indica a recompensa produzida pela RM após observação $o_t$ e ação $a_t$ do agente sobre o ambiente.
+    \item \textbf{Parâmetros} ($\theta$): indica a atualização dos parâmetros da rede neural do ator.
+\end{itemize}
+\subsection{Componentes}
+A função de cada componente ocorre da seguinte forma:
+\begin{itemize}
+    \item \textbf{Ator}: política parametrizada por $\theta$ na forma de uma rede neural. Será implementada no computador embarcado de cada agente VANT do enxame. Recebe como entrada a tupla $[o_t,q_t]$ e produz ação $a_t$. Durante o treinamento a recompensa $r_t$ é repassada a rede crítico para ajuste da política.
+    \item \textbf{Crítico}: rede neural utilizada para estimar o retorno esperado, implementada somente durante a fase de treinamento. Atua como a função de valor ação-estado do algoritmo MARL. Recebe como entrada a tupla $[o_t,a_t,q_t,r_t]$ e estima o quão satisfatória foi a ação dos agentes, repassando para cada rede ator o feedback para atualização dos seus respectivos parâmetros $\theta$.
+    \item \textbf{Ambiente}: representa o ambiente da execução da missão do enxame. Recebe a ação $a_t$ dos agentes que altera seu estado produzindo novas observações $o_{t+1}$ para os agentes. A linha pontilhada separando as observações $o_t$ e $o_{t+1}$ serve para ilustrar o salto temporal.
+    \item \textbf{Máquina de recompensas}: máquina de estados que recebe a observação que o agente tem do ambiente e atribui uma recompensa escalar com base no estado atual da máquina. Cada agente terá uma cópia da mesma RM modelada para a missão.
+\end{itemize}
+
+
+%Como aprimorar o treinamento no aprendizado por reforço multiagente (MARL) de modo a possibilitar que os agentes autônomos para o enxame de VANTs sejam capazes de realizar missões complexas através da decomposição em subtarefas.
+%Como explorar a estrutura interna da função recompensa durante o tre
+
+
+
+\section{Questões de Pesquisa}
+
+\begin{enumerate}
+    \item Como a integração entre Máquinas de Recompensa (RMs) e os algoritmos MARL pode aperfeiçoar o treinamento dos agentes, levando à convergência de políticas eficazes capazes de executar missões com enxames de VANTs?
+    \item Quais tipos de arquiteturas de redes neurais são mais adequadas (i.e, LSTM, CNN ou FC) na construção das redes crítica e ator dos algoritmos de aprendizado na interpretação do espaço de observação do agente VANT?
+    
+    \item Como a utilização de RM com algoritmos de execução descentralizada impacta a escalabilidade do enxame?
+    %ideia:verificar se RM com CTDE é capaz de generalizar a política compartilhada durante o treinamento para execução descentralizada de N drones sem aumentar a dimensionalidade do espaço de observação conforme o numero de drones aumenta.
+    
+    
+    \item Como a utilização de RMs impacta a coordenação dos agentes na execução de tarefas em ambientes parcialmente observáveis?
+    %ideia: verificar se a utilização de RM melhora o desempenho na execução de tarefas pontuais (ou só path planning, or just formation control) em ambientes parc. obsevaveis.
+    
+    \item Quais são as implicações práticas do uso de especificações de tarefas simbólicas (via RMs) em implantações reais de enxames de VANTs?
+\end{enumerate}
+    
+    
+
+%O algoritmo MARL utilizará duas redes neurais denomidadas ator e crítico. A rede ator será a política implementada em cada UAV do enxame. Esta recebe como entrada a tupla $[o_t,q_t,r_t]$ onde:
+
+
+\section{Objetivos Específicos}
+% #TXT_OBJETIVO
+% \textcolor{RedOrange}{Iniciar com a declaração da hipótese do trabalho de pesquisa, se necessário.}
+
+% \textcolor{RedOrange}{Apresentar o objetivo geral (responder a pergunta ``onde você quer chegar com este trabalho?'') e os objetivos específicos (responder a pergunta ``o que deve ser gerado após a conclusão do trabalho?''). Os objetivos específicos devem ser apresentados em tópicos e na ordem em que serão realizados.}
+
+\begin{enumerate}  
+    \item Projetar uma Máquina de Recompensa Hierárquica (RM) para Missões de Enxames de VANTs.
+    \begin{enumerate}
+        \item \textbf{Objetivo}: Decompor a missão global de rastreamento de alvos em subtarefas modulares e hierárquicas (por exemplo, desvio de obstáculos, eficiência energética) com recompensas específicas para cada estado.
+        \item \textbf{Resultado}: Uma estrutura de RM interpretável que codifica a lógica da missão (estados, transições, recompensas) para guiar o comportamento do enxame.
+    \end{enumerate}
+    \item Adaptar Algoritmos MARL com execução descentralizada e integrar RMs.
+    \begin{enumerate}
+        \item \textbf{Objetivo}: Modificar frameworks MARL para condicionar as políticas dos agentes nos estados da RM (por exemplo, aumentar observações com informações do estado da RM).
+        \item \textbf{Resultado}: Novos algoritmos (IPPO-RM, DQMIX-RM) que aproveitam recompensas guiadas por RM para tomada de decisão descentralizada e sensível ao contexto.
+    \end{enumerate}
+    \item Desenvolver um Ambiente de Simulação para Rastreamento de Alvos por Enxames de VANTs.
+    \begin{enumerate}
+        \item \textbf{Objetivo}: Criar um ambiente de testes personalizável com alvos dinâmicos, obstáculos e dinâmica realista dos VANTs (por exemplo, restrições de bateria, ruído de sensores).
+        \item \textbf{Resultado}: Um simulador compatível com Gym para treinamento e avaliação de frameworks RM-MARL.
+    \end{enumerate}
+    \item Avaliar o RM-MARL em Comparação com Abordagens MARL Monolíticas.
+    \begin{enumerate}
+        \item \textbf{Objetivo}: Quantificar melhorias no desempenho da missão (precisão de rastreamento, taxa de colisões) e coerência (alinhamento com a hierarquia da missão).
+        \item \textbf{Resultado}: Evidências empíricas mostrando que RM-MARL supera MARL tradicional em tarefas multiobjetivo para enxames.
+    \end{enumerate}
+    \item Analisar a Escalabilidade e Robustez do Framework.
+    \begin{enumerate}
+        \item \textbf{Objetivo}: Testar o framework com diferentes tamanhos de enxames (3–20 VANTs) e sob condições de observabilidade parcial.
+        \item \textbf{Resultado}: Insights sobre como a complexidade da RM impacta a estabilidade do treinamento e a execução em tempo real.
+    \end{enumerate}
+    \item Demonstrar a Generalização para Novas Especificações de Missão.
+    \begin{enumerate}
+        \item \textbf{Objetivo}: Validar se modificar a RM (por exemplo, adicionando novos estados/regras) permite adaptação rápida a novas tarefas (por exemplo, rastreamento de múltiplos alvos).
+        \item \textbf{Resultado}: Um framework flexível que reduz o esforço de reentreinamento para atualizações de missão.
+    \end{enumerate}
+\end{enumerate}
+
+
+\section{Contribuições Esperadas}
+
+\begin{enumerate}
+    \item \textbf{Contribuições Técnicas}
+    \begin{itemize}
+        \item \textbf{Um Novo Framework RM-MARL:} 
+        Uma integração hierárquica de Reward Machines com algoritmos MARL descentralizados (IPPO/DQMIX), permitindo um design estruturado e consciente da tarefa para recompensas em enxames de UAVs.\\
+        %\textit{Novidade}: Primeiro trabalho a combinar RMs com DTDE MARL para coordenação de enxames de UAVs, unindo a especificação simbólica de tarefas com a execução descentralizada.
+        
+        \item \textbf{Adaptações Algorítmicas:}
+        Versões modificadas dos algoritmos IPPO e QMIX (e.g., \texttt{IPPO-RM}, \texttt{DQMIX-RM}) que condicionam as políticas dos agentes aos estados da RM para decisões sensíveis ao contexto.\\
+        %\textit{Inovação}: Agentes priorizam dinamicamente subtarefas (e.g., evitar colisões antes de rastrear alvos) com base nas transições de estado da RM.
+        
+        \item \textbf{Design Hierárquico de Recompensas:}
+        Um template reutilizável de RM para missões de enxames de UAV. Fornecer um modelo para codificar lógica de missão complexa (e.g., evitar colisões antes de otimizar a proximidade do alvo).
+    \end{itemize}
+    
+    \item \textbf{Contribuições Empíricas}
+    \begin{itemize}
+        \item \textbf{Melhoria no Desempenho da Missão:}
+        Validação empírica mostrando que RM-MARL reduz as taxas de colisão e melhora a precisão do rastreamento de alvos em comparação com as abordagens MARL monolíticas.\\
+        %\textit{Significância}: Demonstra o valor das recompensas estruturadas no balanceamento de objetivos concorrentes.
+        
+        \item \textbf{Análise de Escalabilidade:}
+        Evidências de que RM-MARL mantém o desempenho com enxames de até 20 UAVs, abordando a maldição da dimensionalidade no MARL.\\
+        %\textit{Percepção}: Recompensas guiadas por RM reduzem conflitos entre agentes em implementações de larga escala.
+        
+        \item \textbf{Testes de Generalização:}
+        Estudos de caso mostrando como modificar a RM permite rápida adaptação a novas tarefas sem necessidade de re-treinamento completo.
+    \end{itemize}
+    
+    \item \textbf{Contribuições Práticas}
+    \begin{itemize}
+        \item \textbf{Ambiente de Simulação Open-Source:}
+        Um simulador público baseado no Gym para rastreamento de alvos com enxames de UAVs, incluindo obstáculos dinâmicos, e templates de RM customizáveis. A figura \ref{fig:uav_training_env} demonstra o ambiente de simulação combinando Unreal Engine com a biblioteca de dinâmica de drones AirSim. Esse ambiente será o principal utilizado para desenvolvimento do trabalho.\\
+        %\textit{Utilidade}: Acelera a reprodutibilidade e futuras pesquisas em MARL para robótica de enxames.
+        
+        \item \textbf{Lógica de Missão Interpretável:}
+        RMs fornecem explicações legíveis por humanos sobre o comportamento do enxame, melhorando a confiança e a usabilidade em aplicações do mundo real (e.g., vigilância militar).\\
+        
+        \item \textbf{Diretrizes para Design de RM em MARL:}
+        Melhores práticas para traduzir especificações de missão (e.g., protocolos militares) em estados/transições de RM para enxames de UAVs.
+    \end{itemize}
+    
+    \item \textbf{Contribuições Teóricas}
+    \begin{itemize}
+        \item \textbf{Formalização da Sinergia RM-MARL:}
+        Uma análise teórica de como recompensas guiadas por RM melhoram a atribuição de crédito e a convergência de políticas em MARL descentralizado.\\
+        \textit{Resultado}: Prova de que recompensas estruturadas mitigam a não-estacionaridade no aprendizado multiagente.
+        
+        \item \textbf{Conectando IA Simbólica e MARL:}
+        Um framework que une decomposição simbólica de tarefas (via RMs) com otimização MARL baseada em dados, avançando a IA híbrida para robótica de enxames.
+    \end{itemize}
+\end{enumerate}
+

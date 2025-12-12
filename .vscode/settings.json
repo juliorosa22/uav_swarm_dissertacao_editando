@@ -1,0 +1,8 @@
+{
+    "languagetool.enabled": true,
+    "languagetool.language": "pt-BR",
+    "languagetool.runWhenOpeningFile": true,
+    "languageTool.language": "pt-BR",
+    "languageTool.enabled": true
+
+}

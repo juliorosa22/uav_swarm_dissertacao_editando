@@ -1,0 +1,153 @@
+% =========================================================
+% Capítulo 4 – Desenvolvimento do Trabalho
+% =========================================================
+
+\chapter{Desenvolvimento do Trabalho}
+\label{cap:desenvolvimento}
+
+Este capítulo apresenta o desenvolvimento do trabalho proposto, abordando de forma detalhada a modelagem do problema de navegação cooperativa de enxames de veículos aéreos não tripulados. São descritos os ambientes de simulação utilizados, a especificação das tarefas atribuídas aos agentes, a definição dos espaços de estados e ações, a formulação das funções de recompensa, bem como os algoritmos de aprendizado por reforço multiagente e as estratégias de treinamento empregadas ao longo do estudo.
+
+Inicialmente, o trabalho teve como objetivo utilizar exclusivamente o simulador AirSim como plataforma de desenvolvimento e experimentação. Essa escolha fundamentou-se na proposta de aprender uma política de controle de alto nível para coordenação de enxames, de modo a facilitar uma possível transferência de aprendizado para plataformas reais de VANTs. Nesse contexto, o aprendizado não teria como finalidade o controle de baixo nível, como a estabilização do voo, mas sim a coordenação estratégica dos agentes por meio do envio de comandos abstratos aos controladores de voo embarcados.
+
+O simulador AirSim fornece uma camada de abstração compatível com controladores amplamente utilizados, como ArduPilot e PX4, permitindo que a política aprendida atue de forma semelhante ao que ocorreria em um cenário real de voo autônomo baseado em scripts de missão. Dessa forma, o ambiente de simulação possibilitou o estudo detalhado de aspectos relacionados à modelagem de tarefas cooperativas, percepção do ambiente e coordenação entre múltiplos agentes em cenários tridimensionais realistas.
+
+Entretanto, conforme será discutido na seção de comparação entre os ambientes de simulação, tornou-se necessário adotar uma plataforma alternativa para a realização dos experimentos finais, em função da aproximação do cronograma de conclusão do trabalho e das demandas computacionais associadas ao treinamento de algoritmos de aprendizado por reforço multiagente. O simulador IsaacSim, aliado ao framework IsaacLab, apresentou desempenho computacional superior, maior escalabilidade e melhor suporte à paralelização de ambientes, possibilitando a obtenção de resultados mais consistentes e a prototipação rápida de diferentes configurações experimentais.
+
+Dessa forma, o IsaacSim foi selecionado como a plataforma principal para o treinamento final dos modelos e a apresentação dos resultados deste trabalho. Ressalta-se, contudo, que a utilização prévia do AirSim desempenhou um papel fundamental no andamento da pesquisa, especialmente por sua especialização em aplicações envolvendo VANTs. O uso desse simulador contribuiu de maneira significativa para o entendimento do problema, para a validação conceitual das abordagens propostas e para a definição da metodologia adotada nos experimentos finais.
+
+% =========================================================
+\section{Modelagem do Problema}
+\label{sec:modelagem_problema}
+
+Esta seção apresenta a modelagem formal do problema de navegação cooperativa de enxames de VANTs, contemplando os ambientes de simulação adotados, a definição das tarefas, os espaços de estados e ações, e as funções de recompensa utilizadas no processo de aprendizado.
+% TODO  - Fazer considerções gerais na modelagem formal do problema.
+% Considerações: Discorrer sobre o objetivo da modelagem tentar representar um enxame de drones descentralizados. ou seja
+% Cada drone deve tomar suas próprias decisões baseadas em suas observações locais e comunicação limitada com outros drones.
+% Discutir sobre as limitações de sensores, gps, comunicação e ruídos nas leituras.
+% ---------------------------------------------------------
+\subsection{Ambientes de Simulação}
+\label{subsec:ambientes_simulacao}
+
+% Descrever AirSim e IsaacSim
+% Arquitetura geral de cada simulador: explicitar a diferença entre como uma possivel transferencia de aprenzidado ocorreria nos drones
+% dependendo do simulador utilizado: AirSim( politica de alto nivel, necessita de um controladora de baixo nivel) x IsaacSim ( politica de baixo nivel, controle direto dos atuadores)
+% Motor gráfico e físico
+% Interfaces de controle
+% Justificativa da escolha
+% Motivação para a migração do AirSim para o IsaacSim
+
+% ---------------------------------------------------------
+\subsection{Especificação das Tarefas dos Agentes}
+\label{subsec:especificacao_tarefas}
+
+% Descrição da missão de navegação em formação em V
+% Objetivos individuais e coletivos
+% Desvio de obstáculos
+% Condições de sucesso e falha
+% Critérios de término do episódio
+% Condições de reset
+% Sensores utilizados pelos agentes
+
+% ---------------------------------------------------------
+\subsection{Espaço de Estados e Ações}
+\label{subsec:espaco_estados_acoes}
+
+% Definição formal do vetor de observações
+% Informações proprioceptivas
+% Informações relativas aos vizinhos
+% Sensores de percepção do ambiente
+% Espaço de ações contínuo
+% Diferenças de modelagem entre AirSim e IsaacSim
+
+% ---------------------------------------------------------
+\subsection{Funções de Recompensa}
+\label{subsec:funcoes_recompensa}
+
+% Formulação matemática das recompensas
+% Termos individuais
+% Termos coletivos
+% Penalizações
+% Reward Machines
+% Estados, transições e eventos
+% Integração das RM ao processo de aprendizado multiagente
+
+% =========================================================
+\section{Algoritmo de Aprendizado}
+\label{sec:algoritmo_aprendizado}
+
+Esta seção descreve o algoritmo de aprendizado por reforço multiagente utilizado, bem como sua implementação computacional nos diferentes ambientes de simulação.
+
+% ---------------------------------------------------------
+\subsection{MAPPO: Formulação e Pseudocódigo}
+\label{subsec:mappo_pseudocodigo}
+
+% Centralized Training with Decentralized Execution (CTDE)
+% Formulação do MAPPO
+% Função objetivo
+% Atualização das políticas
+% Apresentação do pseudocódigo comentado
+
+% ---------------------------------------------------------
+\subsection{Implementação Computacional}
+\label{subsec:implementacao}
+
+% Implementação no TorchRL
+% Implementação no IsaacLab
+% Arquiteturas neurais adotadas
+% Attention + CNN no AirSim
+% MLP no IsaacSim
+% Justificativas das escolhas arquiteturais
+
+% =========================================================
+\section{Estratégias de Treinamento}
+\label{sec:estrategias_treinamento}
+
+Esta seção apresenta as estratégias de treinamento adotadas, incluindo a comparação entre simuladores e as abordagens baseadas em aprendizado curricular com e sem o uso de Reward Machines.
+
+% ---------------------------------------------------------
+\subsection{Treinamento no AirSim}
+\label{subsec:treinamento_airsim}
+
+% Objetivo exploratório
+% Limitações computacionais
+% Configuração dos experimentos
+% Observações iniciais
+
+% ---------------------------------------------------------
+\subsection{Treinamento no IsaacLab}
+\label{subsec:treinamento_isaaclab}
+
+% Configuração final de treinamento
+% Paralelização
+% Estabilidade e escalabilidade
+% Vantagens observadas
+
+% ---------------------------------------------------------
+\subsection{Comparação de Performance entre Simuladores}
+\label{subsec:comparacao_simuladores}
+
+% Comparação qualitativa
+% Comparação quantitativa
+% Impacto no tempo de treinamento
+% Discussão sobre fidelidade física
+
+% ---------------------------------------------------------
+\subsection{Abordagem Baseline}
+\label{subsec:baseline}
+
+% Curriculum Learning sem Reward Machines
+% Definição dos estágios
+% Objetivo da baseline
+
+% ---------------------------------------------------------
+\subsection{Curriculum Learning com Reward Machines}
+\label{subsec:curriculum_rm}
+
+% Integração entre Curriculum Learning e RM
+% Definição formal dos estágios:
+% 1. Hover
+% 2. Point-to-Point
+% 3. Desvio de obstáculos (single-agent)
+% 4. Navegação em formação em V
+% 5. Navegação em enxame com obstáculos
+% Discussão da progressão entre estágios

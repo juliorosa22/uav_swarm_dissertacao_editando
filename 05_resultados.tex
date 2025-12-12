@@ -1,0 +1,238 @@
+\chapter{Plano de Ação}
+\label{metodologia}
+\section{Metodologia}
+% #TXT_METODOLOGIA
+% \textcolor{RedOrange}{Descrição da metodologia (materiais e métodos) a serem utilizadas na pesquisa, ressaltando seus usos para o alcance dos objetivos específicos enumerados no item anterior. Apresentar métodos e técnicas empregadas e com base em que foram escolhidos (justificativas claras). Detalhes sobre os parâmetros escolhidos e os recursos disponíveis também devem ser apresentados. O texto deve demonstrar de modo claro o caminho a ser utilizado para construir a solução proposta.}
+
+%\lipsum[11]
+As principais atividades esperadas para o desenvolvimento da proposta são destacadas a seguir:
+ \begin{enumerate}
+            \item \textbf{Revisão de Literatura}: buscar exemplos de algoritmos MARL (IPPO, QMIX); analisar trabalhos que utilizam máquinas de recompensas (RM) em configurações simples e de múltiplos agentes RL; identificar limitações existentes em projeto de recompensas para múlitplas tarefas.
+            \item \textbf{Projetar Máquina de Recompensas}: decompor a missão de rastreamento de alvos em subtarefas gerando os estados da máquina como: desvio de obstáculos, controle de formação, indentificação de alvo.Especificar os eventos que disparam as transições entre os estados (e.g.,SE distancia alvo $<$ 10m ENTÃO mudar para estado de rastreamento).
+            
+            \item \textbf{Adaptação dos Algoritmos MARL} integrar a máquina de recompensa nos algoritmos MARL para que durante o treinamento do agente seja considerado os estados da máquina $q_{RM}$.\begin{itemize}
+                \item Para o algoritmo IPPO: aumentar as observações do agente com o estado da máquina: $o'_i=[o_i,q_{i}]$
+                \item Para o algoritmo QMIX: além de extender o espaço de observações, gerar novas experiências sintéticas a partir da técnica CRM (\textbf{Counterfactual Experiences for RM}). Levando em consideração todos os estados da RM para expandir o replay buffer do agente durante o treinamento.
+            \end{itemize}
+
+            \item \textbf{Projeto do Ambiente de Simulação}: elaborar os cenários 3D de simulação, modelar os espaços de observação, ações e funções recompensas do ambiente.\begin{itemize}
+                \item Utilizar as bibliotecas AirSim e PX4 AutoPilot para modelagem da dinâmica física do drone seus recursos embarcados.
+                \item Integrar a modelagem do ambiente com a biblioteca Gymnasium para possibilitar o treinamento dos algoritmos MARL.
+                \item Implementar obstaculos e alvos dinâmicos dentro do cenário.
+            \end{itemize}
+            \item \textbf{Estabelecimento de Métricas}: definir métricas de desempenho para avaliação do treinamento, como: erro de rastreamento (RMSE), taxa de colisões, convergência de treinamento, eficiência energética.
+
+             \item \textbf{Treinamento e Validação}:\begin{itemize}
+                 \item Treinar os agentes RM-MARL em cenários progressivos: 1-alvo, obstáculos estáticos (prova de conceito); múltiplos alvos, com obstáculos dinâmicos (teste de escalabilidade).
+                 \item Conduzir estudos de hablação: desativar as componentes da máquina de recompensas para avaliar seu impacto na performance;
+             \end{itemize}
+
+             \item \textbf{Coleta de Dados e Análise}: realizar analises quantitativa e qualitativa visando melhor compreensão da convergência do treinamento.
+             \item \textbf{Iteração e Refinamento}:
+             \begin{itemize}
+                 \item Refinar o projeto da máquina de recompensas (RM) baseado nos resultados empíricos;
+                 \item Otimizar os algoritmos para escalabilidade (e.g., testes com 5, 10 e 20 VANTs).
+             \end{itemize}
+
+             \item \textbf{Documentação}: disponibilizar a base de código e o ambiente de simulação de forma open-source, publicação de artigos e escrita da dissertação. 
+            %\item Realizar o treinamento dos agentes, testes e simulações utilizando softwares como: ROS , Unreal, AirSim , Gymnasium, e IsaacSim.
+            
+            %\item Realizar montagem dos drones para início dos testes em campo. 
+            
+            %\item Fazer o deploy dos agentes treinados para o hardware dos drones, e validar sua efetividade em cenários reais.        
+            
+            %\item Documentar os aprendizados obtidos.      
+ \end{enumerate}
+           
+        
+\section{Resultados Parciais}
+\subsection{Implementação}
+Realização de simulações e experimentos utilizando algoritmos de aprendizado por reforço profundo como DQN e PPO envolvendo apenas um único agente na execução da tarefa de desvio de obstáculos. Como ilustrado na figura \ref{fig:uav_training_env}.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{fig/drone_training_photo.png}
+    \caption{Captura de tela simulação do treinamento de agente UAV.}
+    \fonte{Autor.}
+    \label{fig:uav_training_env}
+\end{figure}
+A figura \ref{fig:uav_swarm_airsim} ilustra os experimentos iniciais no controle de um enxame com 5 drones. Neste cenário o objetivo consiste em treinar o enxame para a navegação em ambiente com obstáculos estáticos mantendo a formação em V.
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{fig/swarm_airsim.png}
+    \caption{Simulação Enxame de VANTs com AirSim.}
+    \fonte{Autor.}
+    \label{fig:uav_swarm_airsim}
+\end{figure}
+\clearpage
+
+\subsection{Artigos Produzidos}
+\begin{itemize}
+    \item \textbf{Comparative Analysis of PPO and DQN for UAV Obstacle Avoidance in Simulated Environments}: artigo aceito na 11º Conferência Internacional IFAC que ocorrerá em Julho deste ano na Noruega.
+\end{itemize}
+
+\begin{figure}[H]
+    \begin{center}
+    \includegraphics[scale=0.6]{fig/overview_paths_updated.png}
+    \caption{Visualização 2D das trajetórias dos agentes na tarefa desvio de obstáculos. }
+    \label{fig:uavs_traj_models}
+    \end{center}
+\end{figure}
+
+% % Insert this where you want the image to appear
+% \begin{figure}[!h]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{figuras/HRL_UAV_swarm (1).png}
+%     \caption{Hierarquia de subtarefas para o Rastreamento de Alvo pelo enxame.}
+%     \label{fig:hrl_hierarchy}
+% \end{figure}
+%  \newpage
+
+% Para usar tabelas, use sempre o mesmo template abaixo. Altere somente:
+% 1. \caption{*} / para colocar o rótulo da tabela em *
+% 2. \begin{tabular}{*} / para colocar a formatação da tabela em *
+% 3. o conteúdo da tabela (tudo até \end{tabular})
+
+
+\section{Viabilidade}
+\begin{enumerate}
+     \item \textbf{Hardware Desktop para simulação}: Processador Intel Core i7 8 x4.2 Ghz 12th Gen, GPU Nvidia RTX 4080 12GB, Memória RAM 64GB. Atualmente o laboratório LIARC conta com computadores de alto desempenho capazes de suportar o volume computacional necessário das simulações.
+            
+    \item \textbf{Hardware embarcado para drones}: Raspberry PI 5, Nvidia Jetson Nano.
+    O LIARC já tem previsto recursos para aquisição no próximo ano dos componentes necessários para construção de 10 drones open hardware, com capacidade de processamento embarcado viabilizando a arquitetura de controle descentralizada.
+\end{enumerate}
+           
+
+
+% \begin{table}[h]
+% \centering
+% \caption{Recursos necessários no desenvolvimento da proposta}
+% \vspace{0.5cm}
+% \begin{tabular}{c|lr}
+ 
+% Recurso & Descrição \\ % Note a separação de col. e a quebra de linhas
+% \hline                               % para uma linha horizontal
+% Desktop &  Intel Core i7 12th Gen, 12GB, RAM 64GB. \\
+%  &GPU Nvidia RTX 4080
+% Hardware embarcado& .938 \\
+ 
+% \label{tab:tabela1}
+% \end{tabular}
+% \end{table}
+
+
+\section{Cronograma}
+% #TXT_CRONOGRAMA
+% \textcolor{RedOrange}{Apresentar o cronograma de execução do projeto considerando como prazo de defesa o seu 24 mês do curso (o texto da Dissertação deverá ser encaminhado à banca, após aprovação da mesma, até o final do 23 mês).}
+
+%\lipsum[11]
+
+O cronograma para o desenvolvimento das atividades relacionadas a esta proposta pode ser visto na figura abaixo.%\ref{fig:cronograma}.
+
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[scale=0.7]{fig/cronograma_proposta.png}
+	\caption{Cronograma da Proposta de Disserta\c{c}\~{a}o.}
+	\label{fig:cronograma}
+\end{figure}
+
+
+
+%\resizebox{\textwidth}{!}{
+
+% \begin{ganttchart}[vgrid,hgrid]{1}{12}  
+%     \gantttitle{Cronograma da Pesquisa (Months)}{12} \\  
+%     \gantttitlelist{1,...,12}{1} \\  
+%     \ganttbar{Revisão de Literatura}{1}{2} \\  
+%     \ganttbar{Projeto da RM}{3}{4} \\  
+%     \ganttbar{Adaptação dos Algoritmos MARL}{5}{6} \\  
+%     \ganttbar{Projeto do Ambiente de Simulação}{3}{5} \\  
+%     \ganttbar{Definição de Métricas}{6}{8} \\  
+%     \ganttbar{Treinamento e Validação}{9}{10} \\  
+%     \ganttbar{Coleta e Análise de Dados}{7}{11} \\
+%     \ganttbar{Documentação}{7}{11}
+% \end{ganttchart}  
+
+% \begin{figure}[ht]
+% \centering
+% %\begin{tikzpicture}
+%   % Adjust the starting position (x, y) of the Gantt chart
+% %\begin{scope}[shift={(0,0)}] % Modify (0,0) to reposition
+%     \begin{ganttchart}[
+%         vgrid,hgrid,
+%         title height=1,
+%         bar/.append style={fill=blue!30},
+%         bar height=0.6,
+%         group/.append style={draw=black, fill=blue!10},
+%         milestone/.append style={fill=red, shape=circle, inner sep=2pt},
+%         %time slot format=isodate-yearmonth
+%       ]{1}{12} % Start and end dates (ISO format)     
+%       % Chart title
+%       \gantttitle{Research Timeline}{12} \\
+%       \gantttitle{2025}{10}
+%       \gantttitle{2026}{2} \\
+%       \gantttitlelist{1,...,12}{1} \\  
+%       %\gantttitlecalendar{year, month} \\
+%       % Tasks and milestones
+%       \ganttgroup{Etapa Teórica}{1}{3} \\
+%       \ganttbar{Revisão de Literatura}{1}{2} \\
+%       \ganttbar{Projetar RM VANT}{2}{3} \\
+%       \ganttgroup{Implementação}{3}{7}\\
+%       \ganttbar{Modificar Algortimos}{3}{5} \\
+%       \ganttbar{Modelar Ambiente}{5}{7} \\
+%       \ganttmilestone{Proposal Defense}{4} \\
+%     \ganttgroup{Etapa Execução}{5}{9}\\
+%       \ganttbar{Treinamento dos agentes}{5}{8} \\
+%       \ganttbar{Coleta das métricas}{8}{9} \\
+%     \ganttgroup{Etapa Análise}{8}{10}\\
+%       \ganttbar{Análise das métricas}{8}{9} \\
+%       \ganttbar{Refinamento}{9}{10} \\
+%     \ganttgroup{Documentação}{10}{12}\\
+%       \ganttbar{Escrita Dissertação}{10}{12}
+%     \end{ganttchart}
+%  %\end{scope}
+% %\end{tikzpicture}
+% \caption{Research timeline with milestones and dependencies.}
+% \label{fig:gantt}
+% \end{figure}
+
+
+%}
+% Para usar figuras, use sempre o mesmo template abaixo. altere somente:
+% 1. os parâmetros do comando \includegraphics[width=•]{•} / tamanho e arquivo
+% 2. \caption{*} / para colocar o rótulo da figura em *
+% 3. \label{*} / para colocar a chamada para a figura no texto em *
+%    TODA figura deve ter uma chamada no texto e esta deve ser feita sempre no formato:
+%    Figura \ref{•} (p. ex. "Figura \ref{fig:cronograma}")
+
+% #CRONOGRAMA
+% \begin{figure}[!h]
+% 	\centering
+% 	\includegraphics[width=0.9\textwidth]{cronograma.eps}
+% 	\caption{Cronograma da Proposta de Disserta\c{c}\~{a}o.}
+% 	\label{fig:cronograma}
+% \end{figure}
+
+% \begin{table}[ht]
+%     \centering
+%     \resizebox{\textwidth}{!}{
+%         \begin{tabular}{|c|c|c|} 
+%          \hline
+%           Fase & Atividades & Duração  \\ 
+%          \hline
+%          Revisão de Literatura & Analisar pesquisas na área de MARL e enxame de Drones & OUT 24 à JAN 25  \\ 
+%          \hline
+%          Projeto dos algoritmos & Desenvolver os algoritmos & JAN 25 à MAR 25  \\
+%          \hline
+%          Testes em simulação & Implementar algoritmos ambientes simulados & MAR 25 à JUN 25  \\
+%          \hline
+%         Testes em cenário reais & Fazer deploy dos agentes no hardware dos drones e realizar testes em cenário reais & JUN 25 à SET 25  \\
+%          \hline
+%          Escrita da dissertação & Produção de artigos e escrita da dissertação & SET 25 à DEZ 25  \\
+%          \hline
+%          Revisão e correções & realizar ajustes na dissertação & DEZ 25 à JAN 25\\
+%      \hline
+%     \end{tabular}
+% }
+% \caption{Cronograma da Proposta de Dissertação}
+% \end{table}
+

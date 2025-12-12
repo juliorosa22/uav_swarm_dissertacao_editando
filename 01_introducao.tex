@@ -1,0 +1,71 @@
+
+\chapter{Introdu\c{c}\~{a}o}
+\label{introducao}
+% #TXT_INTRODUCAO
+% \textcolor{RedOrange}{Na introdução devem ser expostos o tema do trabalho, a relevância do tema, uma breve citação sobre os trabalhos relacionados ao tema, o problema a ser abordado (que deve resultar de uma breve descrição das limitações dos trabalhos relacionados apresentados) e o objetivo geral do trabalho (responder a pergunta ``onde você quer chegar com este trabalho?'').}
+Veículos Aéreos Não Tripulados (VANTs) ou \textit{Unmanned Aerial Vehicles} (UAVs), comumente conhecidos como drones, revolucionaram uma ampla gama de aplicações, desde monitoramento e missões de busca e resgate até agricultura e logística. Sua capacidade de operar autonomamente em ambientes diversos tornou-os indispensáveis em domínios civis e militares. Ao longo dos anos, os sistemas de VANTs evoluíram de dispositivos simples controlados remotamente para enxames altamente inteligentes e cooperativos, capazes de tomar decisões complexas.
+No setor militar, os enxames de VANTs possibilitam missões de reconhecimento, vigilância e ataque cooperativo, reduzindo riscos para tropas e aumentando a eficácia operacional. Contudo para habilitar o controle coordenado das ações dos agentes VANTs dentro do enxame, torna-se necessário o desenvolvimento de técnicas mais robustas capazes de lidar com ambientes dinâmicos e complexos que as missões exigem.
+
+
+\section{Contextualização}
+
+O controle de UAVs tem evoluído significativamente ao longo do tempo.
+No  trabalho \cite{intro1} fornece uma visão abrangente da evolução dos métodos de controle para sistemas de VANTs. O estudo destaca a transição de controladores PID clássicos para abordagens modernas baseadas em IA, incluindo aprendizado por reforço (RL). Com a crescente capacidade de processamento computacional, os UAVs passaram a incorporar técnicas de aprendizado de máquina e aprendizado por reforço profundo (\textbf{Deep Reinforcement Learning} - DRL), permitindo controle adaptativo e maior autonomia em operações de enxame. 
+
+Complementando essa evolução, estudos como \cite{intro3,intro4}, abordam técnicas de Aprendizado por Reforço Multiagente (\textit{Multi-Agente Reinforcement Learning} - MARL) explorando sua capacidade de aprimorar a coordenação em enxames ao abordar desafios como: não estacionariedade e observabilidade parcial. Técnicas de MARL melhoram a escalabilidade e a autonomia em enxames de VANTs ao permitir tomada de decisão descentralizada. Contudo, o estudo ressalta uma lacuna persistente entre simulação e implantação prática, onde variabilidade ambiental e limitações de hardware introduzem desafios não abordados em ambientes simulados \cite{intro2}.
+
+
+
+
+
+
+
+\section{Motivação e Justificativa}
+
+Apesar dos avanços no poder computacional dos hardwares e no desenvolvimento dos algoritmos de IA, os frameworks existentes de MARL ainda enfrentam desafios significativos relacionados à não-estacionariedade e escalabilidade. Essas dificuldades tornam-se especialmente críticas à medida que o tamanho do enxame aumenta ou quando os agentes operam em espaços de estados de alta dimensão. Tais limitações são particularmente sensíveis em operações militares, onde o enxame deve executar múltiplas tarefas simultaneamente, como rastrear alvos móveis, evitar colisões com obstáculos, otimizar o consumo de energia e manter a formação da frota. Esses cenários apresentam um alto grau de complexidade, pois exigem um processo de tomada de decisão hierárquico e descentralizado por parte dos agentes, tornando essencial o desenvolvimento de estratégias de controle mais robustas e adaptativas.
+
+Este trabalho propõe a integração de Máquinas de Recompensa (\textit{Reward Machines} - RMs) com algoritmos de aprendizado multiagente (MARL), visando o projeto de funções recompensas estruturadas e hierárquicas para enxames de VANTs. Ao decompor missões complexas (por exemplo, rastreamento de alvos) em subtarefas modulares, o framework alinha agentes descentralizados aos objetivos globais, ao mesmo tempo em que enfrenta desafios como escalabilidade e observabilidade parcial. Essa abordagem se baseia em inovações recentes em aprendizado por reforço apresentados em \cite{rm_marl}, ao mesmo tempo em que aborda desafios reais enfrentados por enxames em aplicações militares e logísticas.
+
+
+
+Esta proposta enquadra-se na área de Ciência da Computação em conformidade com a Necessidade de Conhecimento 01M2024 da Portaria Nº 007 do Departamento de Ciência e Tecnologia do Exército Brasileiro, em 27 de Janeiro de 2023. 
+% #TXT_MOTIVACAO
+
+% \textcolor{RedOrange}{Apresentar os motivos que levaram \`{a} pesquisa e a sua importância enquadrando-a em uma linha de pesquisa do Programa.}
+
+
+\section{Objetivos da Proposta}
+
+\subsection{Objetivo Geral}
+\textbf{
+Aprimorar o processo de treinamento em algoritmos de aprendizado por reforço multiagente (MARL), reduzindo o tempo de convergência para políticas ótimas por meio da exposição da estrutura interna da função recompensa, obtida a partir da modelagem da missão do enxame de VANTs com o uso de máquinas de recompensa.}
+
+%Como aprimorar o treinamento no aprendizado por reforço multiagente (MARL) de modo a possibilitar que os agentes autônomos para o enxame de VANTs sejam capazes de realizar missões complexas através da decomposição em subtarefas.
+\subsection{Objetivos específicos}
+\begin{enumerate}
+    \item Integrar máquinas de recompensa nos algoritmos MARL de execução descentralizada.
+    \item Investigar como a utilização de RMs afeta a escalabilidade do enxame.
+    \item Desenvolver framework para o treinamento de agentes autônomos VANT utilizando ambientes de simulação 3D e bibliotecas de desenvolvimento consolidadas na área.
+    \item Validação dos agentes treinados por meio execução de missões de rastreamento de alvo em ambientes simulados e reais.
+\end{enumerate}
+
+\section{Contribuições Esperadas}
+\begin{itemize}
+    \item Um novo framework RM-MARL que permite a decomposição de missões complexas em subtarefas possibilitando o treinamento de agentes para convergência de políticas satisfatórias.
+    \item Validação empírica mostrando que o framework é capaz de executar missões complexas.
+    \item Criação de um ambiente de simulação open-source para desenvolvimento de agentes autônomos para VANTs.
+    \item Validação empírica que o framework consegue escalar para um número maior de agentes.
+    
+\end{itemize}
+
+\section{Estrutura da Proposta}
+Os próximos capítulos deste trabalho, estão estruturados da seguinte forma:
+\begin{itemize}
+    \item \textbf{Capítulo 2 - Fundamentação Teórica}: Apresentação dos conceitos fundamentais para o desenvolvimento da proposta.
+    
+    \item \textbf{Capítulo 3 - Trabalhos Relacionados}: Apresentação dos trabalhos relacionado encontrados durante a revisão sistemática da literatura.
+    \item \textbf{Capítulo 4 - A Proposta}: Descrição detalhada da proposta propriamente dita, questões de pesquisa, objetivos e contribuições esperadas.
+    \item \textbf{Capítulo 5 - Plano de Ação}: descrição da metodologia adotada e atividades, resultados parciais, viabilidade da proposta e cronograma.
+    \item \textbf{Capítulo 6 - Conclusão}: Conclusão e considerações da proposta.
+\end{itemize}
+
