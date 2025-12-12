@@ -62,7 +62,7 @@
 % ---
 %\usepackage[brazilian,hyperpageref]{backref} % Mostra a página onde cada citação foi feita
 %\usepackage[num,abnt-etal-list=0,bibjustif]{./abntex2cite} % Citações numéricas (ordem de apresentação)
-\usepackage[alf,abnt-etal-list=0,bibjustif]{./abntex2cite} % Citações autor-data (ordem alfabética)
+\usepackage[alf,abnt-etal-list=0,bibjustif]{abntex2cite} % Citações autor-data (ordem alfabética)
 
 % --- 
 % CONFIGURAÇÕES DE PACOTES
@@ -267,12 +267,12 @@
 % ELEMENTOS TEXTUAIS
 % ----------------------------------------------------------
 \textual
-
-\input{01_introducao}
-\input{02_fundamentacao_teorica}
-\input{03_rev_literatura}
+%%Em fase de escrita focado apenas no capítulo 4 - desenvolvimento
+%\input{01_introducao}
+%\input{02_fundamentacao_teorica}
+%\input{03_rev_literatura}
 \input{04_desenvolvimento}
-\input{05_resultados}
+%\input{05_resultados}
 
 %\input{04_proposta}
 %\input{05_metodologia}
@@ -287,6 +287,7 @@
 % ----------------------------------------------------------
 % Referências bibliográficas
 % ----------------------------------------------------------
+\bibliographystyle{abntex2-alf}
 \bibliography{refs}
 
 % ----------------------------------------------------------

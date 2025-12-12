@@ -28,13 +28,35 @@ Esta seção apresenta a modelagem formal do problema de navegação cooperativa
 \subsection{Ambientes de Simulação}
 \label{subsec:ambientes_simulacao}
 
-% Descrever AirSim e IsaacSim
-% Arquitetura geral de cada simulador: explicitar a diferença entre como uma possivel transferencia de aprenzidado ocorreria nos drones
-% dependendo do simulador utilizado: AirSim( politica de alto nivel, necessita de um controladora de baixo nivel) x IsaacSim ( politica de baixo nivel, controle direto dos atuadores)
-% Motor gráfico e físico
-% Interfaces de controle
-% Justificativa da escolha
-% Motivação para a migração do AirSim para o IsaacSim
+A utilização de ambientes de simulação fidedignos e escaláveis é um fator determinante no desenvolvimento e validação de algoritmos de aprendizado por reforço aplicados ao controle de enxames de veículos aéreos não tripulados. Neste trabalho, dois simuladores foram empregados ao longo das diferentes etapas de desenvolvimento: o AirSim e o IsaacSim. Cada um desses ambientes apresenta características específicas, tendo sido concebidos com finalidades distintas, o que impacta diretamente sua adequação a diferentes fases do processo experimental.
+
+O AirSim é um simulador de código aberto desenvolvido inicialmente pela Microsoft Research, apresentado por Shah et al.~\cite{shah2018airsim}, com o objetivo de apoiar pesquisas em veículos autônomos, incluindo carros e VANTs. Construído sobre o motor gráfico Unreal Engine, o AirSim oferece ambientes tridimensionais de alta fidelidade visual, suporte a sensores realistas — como câmeras RGB, profundidade, sensores de distância e IMU — e integração direta com controladores de voo amplamente utilizados, como ArduPilot e PX4. Essa arquitetura permite que o simulador funcione como uma camada de abstração entre algoritmos de alto nível e controladores de baixo nível, aproximando o comportamento do sistema simulado daquele observado em operações reais.
+
+Entre os principais pontos fortes do AirSim destacam-se sua especialização em aplicações com VANTs, a facilidade de configuração de sensores e cenários personalizados, bem como a possibilidade de realizar testes de voo autônomo baseados em scripts e missões pré-programadas. Por outro lado, o simulador apresenta limitações relacionadas ao desempenho computacional e à escalabilidade, especialmente em cenários que envolvem múltiplos agentes e demandam a execução paralela de diversos ambientes, o que pode comprometer a eficiência do treinamento de algoritmos de aprendizado por reforço multiagente.
+
+O IsaacSim, por sua vez, é um simulador desenvolvido pela NVIDIA, fundamentado na plataforma Omniverse e apresentado como uma solução voltada à simulação robótica de alto desempenho~\cite{makoviychuk2021isaac}. Diferentemente do AirSim, o IsaacSim foi projetado desde sua concepção para oferecer escalabilidade, paralelização massiva e integração nativa com bibliotecas de aprendizado profundo. O simulador utiliza tecnologias como USD (Universal Scene Description), PhysX para simulação física e RTX para renderização acelerada por hardware, possibilitando a execução simultânea de centenas ou milhares de ambientes em GPU.
+
+Os principais pontos fortes do IsaacSim incluem seu elevado desempenho computacional, suporte robusto à paralelização de ambientes, fidelidade física e integração direta com frameworks de aprendizado por reforço, como o IsaacLab. Essas características tornam o simulador particularmente adequado para o treinamento intensivo de políticas de controle baseadas em aprendizado por reforço, especialmente em contextos multiagentes. Em contrapartida, o IsaacSim apresenta uma curva de aprendizado mais acentuada e menor especialização nativa em aplicações aeronáuticas quando comparado ao AirSim, exigindo maior esforço na modelagem de dinâmicas específicas de VANTs.
+
+A Figura~\ref{fig:formacao_v_airsim} ilustra um cenário de enxame de VANTs em formação em V modelado no ambiente AirSim, enquanto a Figura~\ref{fig:formacao_v_isaacsim} apresenta uma configuração equivalente implementada no IsaacSim.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/swarm_airsim.png}
+    \caption{Enxame em formação em V no ambiente AirSim.}
+    \label{fig:formacao_v_airsim}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/isaac-sim-env.png}
+    \caption{Enxame em formação em V no ambiente IsaacSim.}
+    \label{fig:formacao_v_isaacsim}
+\end{figure}
+
+No que se refere à integração com bibliotecas de aprendizado por reforço, ambos os simuladores oferecem suporte a diferentes níveis de abstração. O AirSim disponibiliza APIs em Python que permitem sua integração com frameworks como Gymnasium, Stable-Baselines e PyTorch, embora essa integração exija, em geral, a implementação manual de wrappers para adaptação ao paradigma de ambientes do tipo Markov Decision Process (MDP). Essa característica torna o AirSim mais flexível, porém menos otimizado para treinamentos em larga escala.
+
+O IsaacSim, por outro lado, fornece integração nativa com o ecossistema de aprendizado por reforço da NVIDIA por meio do IsaacLab, que implementa interfaces compatíveis com o Gymnasium e suporta diretamente bibliotecas como PyTorch. Essa integração facilita a definição de ambientes vetorizados, o gerenciamento de observações e recompensas em larga escala, bem como a implementação de algoritmos de aprendizado por reforço multiagente de forma eficiente e modular. Em razão dessas características, o IsaacSim foi adotado como a plataforma principal para o treinamento final dos modelos e a avaliação quantitativa dos resultados apresentados neste trabalho.
 
 % ---------------------------------------------------------
 \subsection{Especificação das Tarefas dos Agentes}
