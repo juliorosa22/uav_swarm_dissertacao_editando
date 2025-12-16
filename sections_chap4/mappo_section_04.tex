@@ -1,0 +1,79 @@
+\section{Implementação do Algoritmo MAPPO}
+\label{sec:algoritmo_aprendizado}
+
+
+
+\subsection{Arquitetura Geral do MAPPO Utilizado}
+\label{subsec:mappo_arquitetura_geral}
+
+% Descrição geral do algoritmo MAPPO
+% Uso do PPO como método base
+% Função objetivo com clipping
+% Estimativa de vantagem via GAE
+% Estrutura ator-crítico
+% Política descentralizada e crítico centralizado
+
+\subsection{Implementação do MAPPO no Ambiente AirSim}
+\label{subsec:mappo_airsim}
+
+\subsubsection{Integração entre Simulador e Algoritmo}
+\label{subsubsec:airsim_integracao}
+
+% Desafios de compatibilidade entre AirSim e TorchRL
+% Uso de Docker para conteinerização
+% Comunicação via UDP local
+% Impactos na latência e taxa de amostragem
+
+\subsubsection{Implementação do MAPPO com TorchRL}
+\label{subsubsec:airsim_torchrl}
+
+% Descrição do pipeline com TorchRL
+% DataSyncCollector
+% ProbabilisticActor
+% GAEAdvantage
+% ClipLoss
+% Fluxo geral de coleta e atualização
+
+\subsubsection{Arquitetura das Redes Neurais no AirSim}
+\label{subsubsec:airsim_redes}
+
+% Arquitetura do crítico com mecanismo de atenção
+% Uso da matriz de vizinhança
+% Extração de features (velocidade, distâncias, obstáculos)
+% Arquitetura do ator com CNN para depth image
+% Fusão de observações visuais e vetoriais
+
+\subsection{Implementação do MAPPO no Ambiente IsaacLab}
+\label{subsec:mappo_isaaclab}
+
+\subsubsection{Integração entre Simulador e Algoritmo}
+\label{subsubsec:isaaclab_integracao}
+
+% Uso do IsaacLab com integração nativa
+% Biblioteca skrl
+% Ambiente e algoritmo no mesmo processo
+% Benefícios em desempenho e estabilidade
+
+\subsubsection{Implementação do MAPPO com \textit{skrl}}
+\label{subsubsec:isaaclab_skrl}
+
+% MAPPO fornecido pela biblioteca skrl
+% Interface direta com ambientes IsaacLab
+% Simplificação da engenharia do treinamento
+
+\subsubsection{Arquitetura das Redes Neurais no IsaacSim}
+\label{subsubsec:isaaclab_redes}
+
+% Arquitetura do ator (MLP)
+% Arquitetura do crítico (MLP mais profundo)
+% Dimensões das camadas
+% Justificativa baseada no espaço de observação vetorial
+
+\subsection{Discussão Comparativa das Implementações}
+\label{subsec:mappo_comparacao}
+
+% Comparação entre AirSim e IsaacLab
+% Complexidade de integração
+% Diferenças arquiteturais
+% Impacto no desempenho e estabilidade
+% Preparação para a seção de treinamento e resultados

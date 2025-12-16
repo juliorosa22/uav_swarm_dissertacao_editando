@@ -1,0 +1,146 @@
+\chapter{Formulação Detalhada da Função de Recompensa no Ambiente AirSim}
+\label{apendice:reward_airsim}
+
+Este apêndice apresenta a formulação completa da função de recompensa utilizada nos experimentos realizados no ambiente AirSim, bem como a descrição detalhada de cada um de seus termos constituintes. Essa função foi desenvolvida de forma incremental e empírica ao longo de diversos ciclos de treinamento, sendo adotada como linha de base (\textit{baseline}) para o aprendizado multiagente antes da introdução de estratégias baseadas em Máquinas de Recompensa.
+
+\section{Definição Geral da Recompensa}
+
+A recompensa instantânea atribuída a cada agente $i$ no instante discreto $t$ é definida como a soma ponderada de múltiplos termos densos e esparsos:
+\begin{equation}
+\label{eq:reward_total}
+r_i(t) =
+r_{i}^{\mathrm{prog}}(t) +
+r_{i}^{\mathrm{obs}}(t) +
+r_{i}^{\mathrm{nbr}}(t) +
+r_{i}^{\mathrm{lap}}(t) +
+r_{i}^{\mathrm{col}}(t) +
+r_{i}^{\mathrm{goal}}(t) +
+r^{\mathrm{time}}(t),
+\end{equation}
+onde $r_{i}^{\mathrm{prog}}$ representa o progresso em direção ao objetivo, $r_{i}^{\mathrm{obs}}$ e $r_{i}^{\mathrm{nbr}}$ penalizam proximidade de obstáculos e de outros agentes, $r_{i}^{\mathrm{lap}}$ está associado à manutenção da formação, $r_{i}^{\mathrm{col}}$ penaliza colisões, $r_{i}^{\mathrm{goal}}$ recompensa a proximidade ao objetivo, e $r^{\mathrm{time}}$ corresponde a uma penalização temporal constante.
+
+Nos termos seguintes, cada componente da recompensa é descrito em detalhe.
+
+\section{Termo de Progresso em Direção ao Objetivo}
+
+O termo de progresso foi projetado para incentivar continuamente a redução da distância entre o agente e seu objetivo individual. Seja $d_{i,g}^t$ a distância do agente $i$ ao objetivo no instante $t$, e $d_{i,g}^0$ a distância inicial. Define-se a distância normalizada:
+\begin{equation}
+\hat d_{i,g}^t = \frac{d_{i,g}^t}{d_{i,g}^0 + \varepsilon},
+\end{equation}
+onde $\varepsilon$ é um termo pequeno para evitar divisões por zero.
+
+Além disso, considera-se a variação temporal da distância:
+\begin{equation}
+\Delta d_{i,g}^t = d_{i,g}^{t-1} - d_{i,g}^t,
+\end{equation}
+bem como o alinhamento entre o vetor velocidade $\mathbf{v}_i^t$ e o vetor direção ao objetivo $\mathbf{g}_i^t$, dado por:
+\begin{equation}
+a_i^t =
+\left\langle
+\frac{\mathbf{g}_i^t}{\|\mathbf{g}_i^t\|+\varepsilon},
+\frac{\mathbf{v}_i^t}{\|\mathbf{v}_i^t\|+\varepsilon}
+\right\rangle.
+\end{equation}
+
+O termo de progresso é então definido como:
+\begin{equation}
+\label{eq:progress_term}
+r_{i}^{\mathrm{prog}}(t) =
+\mathrm{clip}\!\left(
+w_{\mathrm{prog}}
+\left(
+-5 \hat d_{i,g}^t
+-5
++0.2\,\mathrm{clip}(\Delta d_{i,g}^t,-5,5)
++0.5\,a_i^t
+\right),
+-12,-3
+\right),
+\end{equation}
+sendo sempre negativo por construção, de modo a incentivar melhorias contínuas no comportamento de navegação.
+
+\section{Penalização por Proximidade de Obstáculos}
+
+A penalização associada a obstáculos é modelada por uma função exponencial decrescente em função da distância frontal $d_{i,o}^t$ ao obstáculo mais próximo:
+\begin{equation}
+\label{eq:obstacle_penalty}
+r_{i}^{\mathrm{obs}}(t) =
+\mathrm{clip}\!\left(
+-w_{\mathrm{obs}}
+\exp\!\left(
+-\frac{\mathrm{clip}(d_{i,o}^t,0.2,50)}{d_{\mathrm{safe}}^{\mathrm{obs}}}
+\right),
+-3,0
+\right).
+\end{equation}
+Esse termo fornece um gradiente denso que penaliza progressivamente aproximações perigosas, sem introduzir descontinuidades.
+
+\section{Penalização por Proximidade entre Agentes}
+
+Para evitar colisões e incentivar espaçamento seguro entre os membros do enxame, define-se uma penalização baseada na distância ao vizinho mais próximo $d_{i,\text{nn}}^t$:
+\begin{equation}
+\label{eq:neighbor_penalty}
+r_{i}^{\mathrm{nbr}}(t) =
+\mathrm{clip}\!\left(
+-w_{\mathrm{nbr}}
+\exp\!\left(
+-\frac{d_{i,\text{nn}}^t}{d_{\mathrm{safe}}^{\mathrm{nbr}}}
+\right),
+-3,0
+\right).
+\end{equation}
+
+\section{Termo de Manutenção da Formação}
+
+A coesão e a geometria da formação são incentivadas por meio de um potencial Laplaciano calculado a partir das distâncias interagentes. Seja $D_{ij}^t$ a distância euclidiana entre os agentes $i$ e $j$, com $D_{ii}^t = \infty$. Define-se o potencial par-a-par:
+\begin{equation}
+U_{ij}^t = \alpha e^{-\lambda_1 D_{ij}^t} - \beta e^{-\lambda_2 D_{ij}^t},
+\end{equation}
+e o potencial médio associado ao agente $i$:
+\begin{equation}
+\bar U_i^t = \frac{1}{N-1} \sum_{j \neq i} U_{ij}^t.
+\end{equation}
+
+O termo de formação é então definido como:
+\begin{equation}
+\label{eq:laplacian_penalty}
+r_{i}^{\mathrm{lap}}(t) =
+\mathrm{clip}\!\left(
+- w_{\mathrm{lap}}\,\mathrm{clip}(\bar U_i^t,-1,5),
+-4,0
+\right),
+\end{equation}
+onde valores mais negativos indicam maior distorção da formação desejada.
+
+\section{Termos Esparsos: Colisão, Objetivo e Tempo}
+
+A penalização por colisão é definida como:
+\begin{equation}
+r_{i}^{\mathrm{col}}(t) =
+\begin{cases}
+- w_{\mathrm{col}}, & \text{se ocorre colisão no passo } t,\\
+0, & \text{caso contrário}.
+\end{cases}
+\end{equation}
+
+O bônus por proximidade ao objetivo é dado por:
+\begin{equation}
+r_{i}^{\mathrm{goal}}(t) =
+\begin{cases}
++ w_{\mathrm{goal}}, & \text{se } d_{i,g}^t < d_{\mathrm{thr}},\\
+0, & \text{caso contrário}.
+\end{cases}
+\end{equation}
+
+Por fim, aplica-se uma penalização temporal constante:
+\begin{equation}
+r^{\mathrm{time}}(t) = - w_{\mathrm{time}}.
+\end{equation}
+
+\section{Análise dos Valores da Recompensa}
+
+Devido aos limites impostos individualmente a cada termo, a recompensa instantânea por agente assume valores aproximadamente no intervalo:
+\begin{equation}
+r_i(t) \in [-27.01,\;1.99].
+\end{equation}
+Valores fortemente negativos indicam comportamentos indesejados, como ausência de progresso, proximidade excessiva de obstáculos ou agentes, degradação da formação ou colisões. Valores próximos de zero correspondem a navegação segura e estável, enquanto valores positivos ocorrem predominantemente quando o agente se encontra próximo do objetivo, recebendo o bônus de chegada. Essa estrutura favorece a estabilidade do treinamento e a emergência de comportamentos cooperativos consistentes no ambiente AirSim.

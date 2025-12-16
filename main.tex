@@ -29,11 +29,9 @@
 \usepackage{microtype} 		% para melhorias de justificação
 \usepackage{setspace}       % para espacamento simples no resumo
 \usepackage{pdfpages}
-\usepackage{graphicx}		% Inclusão de gráficos
 \usepackage{subcaption}     % Para subfiguras
-\usepackage{microtype} 		
-%\usepackage{pdfpages}
 \usepackage{tikz}
+
 \usetikzlibrary{positioning, shapes.geometric, arrows}
 \tikzstyle{block} = [rectangle, draw, minimum height=1.5cm, minimum width=3cm]
 \tikzstyle{sum} = [circle, draw, inner sep=2pt]
@@ -134,6 +132,7 @@
 % Possibilita criação de Quadros e Lista de quadros.
 % Ver https://github.com/abntex/abntex2/issues/176
 %
+
 \newcommand{\quadroname}{Quadro}
 \newcommand{\listofquadrosname}{Lista de quadros}
 
@@ -152,6 +151,8 @@
 \usepackage{array} % para customizar a largura das colunas nos quadros
 \usepackage{multirow} % para merge de linhas nos quadros
 \usepackage{multicol} % para merge de colunas nos quadros
+\usepackage{algorithm}
+\usepackage{algorithmic}
 % ---
 
 % --- 
@@ -272,7 +273,7 @@
 \textual
 %%Em fase de escrita focado apenas no capítulo 4 - desenvolvimento
 %\input{01_introducao}
-%\input{02_fundamentacao_teorica}
+\input{02_fundamentacao_teorica}
 %\input{03_rev_literatura}
 \input{04_desenvolvimento}
 %\input{05_resultados}
@@ -284,7 +285,12 @@
 % ----------------------------------------------------------
 % ELEMENTOS PÓS-TEXTUAIS
 % ----------------------------------------------------------
+\appendix
+\input{appendix_A_reward_airsim_equation}
+\input{appendix_B_rm_definition}
+\input{appendix_C_complete_reward_isaacsim}
 \postextual
+
 % ----------------------------------------------------------
 
 % ----------------------------------------------------------

@@ -1,0 +1,184 @@
+\subsection{Funções de Recompensa}
+\label{subsec:funcoes_recompensa}
+
+A função de recompensa desempenha um papel central no aprendizado por reforço, uma vez que é responsável por quantificar a qualidade das ações executadas pelo agente em relação aos objetivos da tarefa. Em problemas de navegação autônoma e, em especial, em cenários multiagentes cooperativos, o projeto da função de recompensa é um dos aspectos mais críticos do framework, pois define implicitamente o comportamento que será aprendido.
+
+Diferentemente de abordagens supervisionadas, em que o comportamento desejado é explicitamente rotulado, no aprendizado por reforço a função de recompensa atua como um sinal escalar que guia o agente ao longo do processo de exploração do ambiente. Assim, projetar uma função de recompensa adequada pode ser entendido como um processo iterativo e artesanal, no qual diferentes termos e ponderações são ajustados progressivamente a partir da análise empírica do comportamento aprendido. Uma formulação inadequada pode conduzir a políticas instáveis, comportamentos indesejados ou dificuldades de convergência durante o treinamento.
+
+%Na literatura, tarefas de navegação autônoma com veículos aéreos não tripulados, bem como cenários de navegação cooperativa em enxames, geralmente empregam funções de recompensa compostas por múltiplos termos. Essas funções combinam incentivos à progressão em direção ao objetivo, penalizações por colisões ou proximidade excessiva a obstáculos, e termos adicionais relacionados à suavidade da trajetória, eficiência do movimento e manutenção da coesão do grupo. Essa formulação multi-termo permite capturar diferentes aspectos do comportamento desejado, fornecendo um sinal de aprendizado mais informativo aos agentes.
+
+%Diversos trabalhos exploram a utilização de recompensas densas e contínuas para guiar UAVs em tarefas de navegação. Por exemplo, Tovarnov e Bykov propõem uma função de recompensa baseada na qualidade da trajetória, utilizando curvas de Bézier para incentivar deslocamentos suaves e eficientes, ao mesmo tempo em que penalizam comportamentos indesejados como desvios excessivos ou situações de interceptação \cite{Tovarnov2022Reinforcement}. Esse tipo de abordagem evidencia a importância de recompensas que reflitam não apenas o sucesso final da missão, mas também a qualidade do comportamento ao longo do tempo.
+
+%Em cenários tridimensionais mais complexos, nos quais a evasão de obstáculos desempenha papel central, funções de recompensa especializadas têm sido amplamente investigadas. Li et al. exploram recompensas projetadas para incentivar a navegação segura em ambientes 3D arbitrários, combinando termos de progresso, penalizações por colisão e ajustes dinâmicos baseados em feedback humano, demonstrando ganhos em estabilidade e eficiência do aprendizado \cite{Li2023UAVObstacleAvoidance}. Resultados semelhantes são observados em trabalhos que enfatizam a suavidade da trajetória como critério fundamental, penalizando mudanças abruptas de direção e incentivando movimentos contínuos e estáveis, o que contribui para a redução de colisões e para o aprendizado de políticas mais robustas \cite{Song2022Smooth}.
+
+%\subsubsection{Recompensas em Tarefas de Navegação Cooperativa}
+
+%Do ponto de vista matemático, esses estudos convergem para a adoção de funções de recompensa com propriedades desejáveis, tais como continuidade, limitação superior e inferior, e escalonamento adequado entre seus diferentes termos. Essas características são fundamentais para evitar explosões de gradiente e facilitar a convergência do treinamento em algoritmos de aprendizado por reforço profundo. Além disso, em cenários cooperativos, é comum a utilização de recompensas compartilhadas ou parcialmente compartilhadas, de modo a alinhar os objetivos individuais dos agentes com o desempenho global do enxame, promovendo comportamentos colaborativos e reduzindo conflitos entre políticas locais.
+
+%Nesse contexto, o projeto da função de recompensa pode ser entendido como um processo iterativo e empírico, no qual diferentes termos e ponderações são ajustados progressivamente a partir da observação do comportamento emergente dos agentes. Essa perspectiva motiva a adoção de formulações modulares e estruturadas, capazes de incorporar conhecimento prévio sobre a tarefa e de facilitar a extensão para abordagens mais expressivas, como o uso de Máquinas de Recompensa, conforme será discutido nas subseções seguintes.
+
+
+\subsubsection{Função de Recompensa no Ambiente AirSim}
+
+A função de recompensa foi desenvolvida de forma incremental e empírica, a partir de múltiplos ciclos de treinamento e análise do comportamento emergente do enxame. Nessa etapa inicial, adotou-se uma formulação monolítica, sem o uso de Máquinas de Recompensa (\textit{Reward Machines}), composta exclusivamente por termos contínuos, o que permitiu avaliar de maneira controlada a contribuição individual de cada componente da recompensa no aprendizado multiagente.
+
+A formulação teve como objetivo principal guiar os agentes na navegação cooperativa em formação, incentivando a progressão em direção ao objetivo, a manutenção de distâncias seguras entre os agentes e o desvio de obstáculos. Os pesos e limites associados aos diferentes termos foram ajustados progressivamente, buscando um compromisso entre densidade do sinal de aprendizado e estabilidade do treinamento, em um cenário no qual os agentes atuam por meio de comandos de alto nível interpretados por controladores de voo embarcados.
+
+A função de recompensa obtida foi então adotada como uma linha de base (\textit{baseline}) para o desenvolvimento do trabalho, servindo de referência para as abordagens posteriores. A formulação completa, bem como a descrição detalhada de cada termo e de seus limites, é apresentada no Apêndice~\ref{apendice:reward_airsim}. De forma compacta, a recompensa total atribuída a cada agente $i$ no instante $t$ é definida como:
+
+\[
+r_i(t) =
+r_{i}^{\mathrm{prog}}(t) +
+r_{i}^{\mathrm{obs}}(t) +
+r_{i}^{\mathrm{nbr}}(t) +
+r_{i}^{\mathrm{lap}}(t) +
+r_{i}^{\mathrm{col}}(t) +
+r_{i}^{\mathrm{goal}}(t) -
+w_{\mathrm{time}},
+\]
+onde os termos correspondem, respectivamente, ao progresso em direção ao objetivo, penalizações por proximidade de obstáculos e de vizinhos, penalização associada à manutenção da formação, penalização por colisões, bônus por proximidade do objetivo e uma penalização temporal constante.
+
+Em particular, o termo associado à manutenção da formação é modelado por um potencial Laplaciano médio calculado a partir das distâncias interagentes:
+\[
+r_{i}^{\mathrm{lap}}(t) =
+\mathrm{clip}\!\left(
+- w_{\mathrm{lap}} \,
+\frac{1}{N-1}
+\sum_{j \neq i}
+\big(
+\alpha e^{-\lambda_1 D_{ij}^t}
+-
+\beta e^{-\lambda_2 D_{ij}^t}
+\big),
+\,-4,\,0
+\right),
+\]
+onde $D_{ij}^t$ representa a distância euclidiana entre os agentes $i$ e $j$. Os demais termos da recompensa seguem formulações contínuas baseadas em decaimento exponencial e alinhamento direcional, sendo individualmente truncados para garantir estabilidade numérica durante o treinamento.
+
+Essa formulação, embora eficaz para o ambiente AirSim, revelou limitações quando considerada em cenários de maior fidelidade física e com políticas de controle em nível dinâmico, motivando sua posterior reformulação e extensão por meio do uso de Máquinas de Recompensa, conforme descrito nas seções seguintes.
+
+
+\subsubsection{Função de Recompensa no Ambiente IsaacSim}
+
+\paragraph{Máquinas de Recompensa no Aprendizado Curricular}
+
+Neste trabalho, o aprendizado curricular e as Máquinas de Recompensa (\textit{Reward Machines} – RM) são empregados de forma complementar, porém com funções conceitualmente distintas. O aprendizado curricular organiza o processo de treinamento ao longo de diferentes cenários, aumentando gradualmente a complexidade das tarefas — desde comportamentos básicos de estabilização até a navegação cooperativa em formação com desvio de obstáculos — com o objetivo de facilitar a convergência do aprendizado.
+
+A Máquina de Recompensa, por sua vez, atua como um mecanismo de alto nível responsável por modular dinamicamente a função de recompensa durante a execução das tarefas. Em vez de alterar a estrutura funcional da recompensa, a RM ajusta os pesos associados aos seus diferentes termos, redefinindo as prioridades comportamentais dos agentes em função do estado corrente da máquina. Essa abordagem permite que múltiplos objetivos sejam incorporados em uma única formulação matemática, sendo enfatizados de forma adaptativa ao longo da execução.
+
+No contexto deste trabalho, a RM é composta por quatro estados principais: \textit{hovering}, voltado à elevação e estabilização em altitude; \textit{single-moving}, que prioriza a navegação individual em direção à posição objetivo; \textit{cooperative moving}, responsável por reforçar a coesão do enxame e a manutenção de distâncias seguras entre os agentes; e \textit{obstacle avoiding}, no qual a evasão de obstáculos assume papel central. As transições entre esses estados ocorrem automaticamente a partir de condições observáveis do ambiente, como altitude, proximidade de obstáculos e distância entre vizinhos.
+
+Cada estado da Máquina de Recompensa está associado a uma configuração específica de pesos da função de recompensa. Seja definido o vetor de pesos:
+\[
+\mathbf{w}^{(u)} =
+\big[
+w_{\mathrm{pos}}^{(u)},\;
+w_{\Delta}^{(u)},\;
+w_{\mathrm{align}}^{(u)},\;
+w_{\mathrm{smooth}}^{(u)}
+\big],
+\]
+onde $u \in \{H, S, C, O\}$ representa o estado corrente da RM. Para fins de notação compacta, os vetores de peso associados a cada estado são denotados por:
+\begin{align*}
+\mathbf{w}^{(H)} &\equiv \mathbf{w}_{\text{hovering}}, \\
+\mathbf{w}^{(S)} &\equiv \mathbf{w}_{\text{single}}, \\
+\mathbf{w}^{(C)} &\equiv \mathbf{w}_{\text{coop}}, \\
+\mathbf{w}^{(O)} &\equiv \mathbf{w}_{\text{obstacle}}.
+\end{align*}
+
+Com essa parametrização, a energia base da função de recompensa pode ser expressa de forma simplificada como:
+\[
+E_i(t) =
+w_{\mathrm{pos}}^{\big(u_i(t)\big)} E_i^{\mathrm{pos}}(t)
++
+w_{\Delta}^{\big(u_i(t)\big)} E_i^{\Delta d}(t)
++
+w_{\mathrm{align}}^{\big(u_i(t)\big)} E_i^{\mathrm{align}}(t),
+\]
+onde os pesos são selecionados dinamicamente em função do estado corrente da Máquina de Recompensa.
+
+A Figura~\ref{fig:rm_diagram} ilustra de forma resumida os estados da Máquina de Recompensa e as principais condições de transição entre eles. A definição formal das proposições lógicas, da função de transição da RM e da associação completa entre estados e pesos é apresentada no Apêndice~\ref{apendice:rm_isaacsim}. A formulação matemática detalhada da função de recompensa adotada no ambiente IsaacSim, incluindo todos os termos e seus intervalos de valores, é apresentada no Apêndice~\ref{apendice:reward_isaacsim}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    state/.style={
+        draw,
+        circle,
+        thick,
+        minimum size=1.6cm,
+        inner sep=2pt
+    },
+    arrow/.style={->, thick},
+    loop/.style={->, thick, looseness=6},
+    init/.style={->, thick},
+    every node/.style={font=\small}
+]
+
+% States
+\node[state] (H) {H};
+\node[state, right=5cm of H] (S) {S};
+\node[state, below=3.5cm of S] (C) {C};
+\node[state, left=5cm of C] (O) {O};
+
+% Initial arrow
+\node[left=1.8cm of H] (init) {};
+\draw[init] (init) -- node[above] {init} (H);
+
+% Self-loops (state persistence)
+\draw[loop] (H) edge[above] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{hover}}\rangle$} (H);
+\draw[loop] (S) edge[above] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{single}}\rangle$} (S);
+\draw[loop] (C) edge[below] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{coop}}\rangle$} (C);
+\draw[loop] (O) edge[below]  node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{obstacle}}\rangle$} (O);
+
+% Transitions
+\draw[arrow] (H) -- 
+node[above, yshift=2pt] {\scriptsize $\langle \mathcal{P}_1,\mathbf{w}_{\text{single}}\rangle$} 
+(S);
+
+\draw[arrow] (S) -- 
+node[right, xshift=2pt] {\scriptsize $\langle \mathcal{P}_3,\mathbf{w}_{\text{coop}}\rangle$} 
+(C);
+
+\draw[arrow] (C) -- 
+node[left, xshift=-2pt] {\scriptsize $\langle \neg\mathcal{P}_3,\mathbf{w}_{\text{single}}\rangle$} 
+(S);
+
+\draw[arrow] (S) to[bend left=12] 
+node[above right] {\scriptsize $\langle \neg\mathcal{P}_2,\mathbf{w}_{\text{obstacle}}\rangle$} 
+(O);
+
+\draw[arrow] (C) to[bend right=12] 
+node[below right] {\scriptsize $\langle \neg\mathcal{P}_2,\mathbf{w}_{\text{obstacle}}\rangle$} 
+(O);
+
+\draw[arrow] (O) -- 
+node[left, xshift=-2pt] {\scriptsize $\langle \mathcal{P}_2,\mathbf{w}_{\text{single}}\rangle$} 
+(S);
+
+% Hover override (highest priority)
+\draw[arrow, bend left=18] (S) to 
+node[above] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
+(H);
+
+\draw[arrow, bend right=18] (C) to 
+node[below] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
+(H);
+
+\draw[arrow, bend left=30] (O) to 
+node[left] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
+(H);
+
+\end{tikzpicture}
+\caption{Diagrama da Máquina de Recompensa (RM) utilizada no ambiente IsaacSim. Cada transição é rotulada por uma tupla composta pela proposição lógica avaliada no ambiente e pela configuração de pesos ativada na função de recompensa.}
+\label{fig:rm_diagram}
+\end{figure}
+
+
+
+\subsubsection{Considerações Finais}
+
+A utilização de Máquinas de Recompensa em conjunto com uma função de recompensa parametrizada por estados permitiu estruturar o aprendizado de forma progressiva e controlada, mantendo uma única formulação funcional ao longo de todos os cenários de treinamento. Essa abordagem favoreceu a estabilidade do aprendizado e a interpretação dos comportamentos emergentes, ao explicitar a relação entre objetivos da tarefa e prioridades comportamentais dos agentes.
+
+Nos apêndices, são apresentadas a definição formal completa da Máquina de Recompensa e a formulação matemática detalhada da função de recompensa adotada no ambiente IsaacSim.
+% =========================================================

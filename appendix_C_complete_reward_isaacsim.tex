@@ -1,0 +1,106 @@
+\chapter{Formulação Detalhada da Função de Recompensa no Ambiente IsaacSim}
+\label{apendice:reward_isaacsim}
+
+Este apêndice apresenta a formulação matemática completa da função de recompensa utilizada no ambiente IsaacSim. A recompensa é definida como uma função energética híbrida, composta por termos aditivos e multiplicativos, cujos pesos são modulados dinamicamente pelo estado corrente da Máquina de Recompensa (RM), conforme definido no Apêndice~\ref{apendice:rm_isaacsim}.
+
+\section{Energia Base}
+
+Para cada agente $i$ no instante $t$, define-se inicialmente a energia base:
+\begin{equation}
+E_i(t) =
+w_{\mathrm{pos}}^{(u_i(t))} \, E_i^{\mathrm{pos}}(t)
++
+w_{\Delta}^{(u_i(t))} \, E_i^{\Delta d}(t)
++
+w_{\mathrm{align}}^{(u_i(t))} \, E_i^{\mathrm{align}}(t),
+\label{eq:base_energy}
+\end{equation}
+onde $u_i(t)$ denota o estado corrente da Máquina de Recompensa do agente $i$.
+
+O potencial atrativo de posição é definido como:
+\begin{equation}
+E_i^{\mathrm{pos}}(t) =
+\frac{k_p}{1 + \left\| \mathbf{p}_i(t) - \mathbf{p}_{i,g}(t) \right\|^2},
+\label{eq:pos_energy}
+\end{equation}
+sendo $\mathbf{p}_i(t)$ a posição do agente e $\mathbf{p}_{i,g}(t)$ a posição objetivo correspondente.
+
+O termo de progresso temporal é dado por:
+\begin{equation}
+E_i^{\Delta d}(t) =
+k_d \big( d_i(t-1) - d_i(t) \big),
+\label{eq:delta_energy}
+\end{equation}
+onde $d_i(t)$ representa a distância euclidiana entre o agente e o objetivo no instante $t$.
+
+O termo de alinhamento direcional é definido como:
+\begin{equation}
+E_i^{\mathrm{align}}(t) =
+k_a \max\!\big(0, \cos \theta_i(t)\big)\,
+\mathbb{I}_{\|\mathbf{v}_i(t)\| > \varepsilon},
+\label{eq:align_energy}
+\end{equation}
+em que $\theta_i(t)$ é o ângulo entre o vetor velocidade $\mathbf{v}_i(t)$ e o vetor direção ao objetivo, e $\mathbb{I}_{(\cdot)}$ denota a função indicadora.
+
+\section{Moduladores Multiplicativos}
+
+A energia base é modulada por fatores multiplicativos associados à suavidade do movimento, segurança em relação a obstáculos e cooperação entre agentes:
+\begin{equation}
+\tilde E_i(t) =
+E_i(t)\,
+w^{\mathrm{smooth}}M_i^{\mathrm{smooth}}(t)\,
+M_i^{\mathrm{obs}}(t)\,
+M_i^{\mathrm{coop}}(t).
+\label{eq:modulated_energy}
+\end{equation}
+
+O modulador de suavidade é definido como:
+\begin{equation}
+M_i^{\mathrm{smooth}}(t) =
+\frac{1}{
+1
++ \alpha \|\mathbf{v}_i(t)\|
++ \beta \|\boldsymbol{\omega}_i(t)\|
++ \gamma \|\mathbf{v}_i(t)\| \|\boldsymbol{\omega}_i(t)\|
+},
+\label{eq:smooth_mod}
+\end{equation}
+onde $\boldsymbol{\omega}_i(t)$ representa a velocidade angular do agente.
+
+O modulador associado à proximidade de obstáculos é dado por:
+\begin{equation}
+M_i^{\mathrm{obs}}(t) =
+\exp\!\big(-k_o \, \phi_i^2(t)\big),
+\label{eq:obs_mod}
+\end{equation}
+em que $\phi_i(t)$ representa uma medida escalar da influência do obstáculo mais próximo.
+
+O modulador cooperativo é definido como:
+\begin{equation}
+M_i^{\mathrm{coop}}(t) =
+\exp\!\big(-k_c \, (d_{i,\mathrm{nn}}(t) - d_{\mathrm{opt}})^2\big),
+\label{eq:coop_mod}
+\end{equation}
+onde $d_{i,\mathrm{nn}}(t)$ é a distância ao vizinho mais próximo e $d_{\mathrm{opt}}$ representa a distância desejada de formação.
+
+\section{Limitação da Recompensa}
+
+A energia modulada é convertida em recompensa por meio de uma função hiperbólica, limitando sua magnitude:
+\begin{equation}
+r_i^{\mathrm{base}}(t) =
+2 \tanh\!\big( \eta \, \tilde E_i(t) \big).
+\label{eq:base_reward}
+\end{equation}
+
+\section{Recompensa Global do Ambiente}
+
+Por fim, a recompensa global atribuída ao ambiente no instante $t$ é definida como:
+\begin{equation}
+r(t) =
+\frac{1}{N} \sum_{i=1}^{N} r_i^{\mathrm{base}}(t)
++ r^{\mathrm{safe}}(t)
++ r^{\mathrm{jerk}}(t)
++ r^{\mathrm{vel}}(t),
+\label{eq:global_reward}
+\end{equation}
+onde os termos adicionais representam penalizações associadas a violações de segurança, variações abruptas de controle (\textit{jerk}) e velocidades excessivas, respectivamente.

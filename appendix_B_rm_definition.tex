@@ -1,0 +1,93 @@
+\chapter{Definição Formal da Máquina de Recompensa no Ambiente IsaacSim}
+\label{apendice:rm_isaacsim}
+
+Este apêndice apresenta a definição formal da Máquina de Recompensa (\textit{Reward Machine} – RM) utilizada no ambiente IsaacSim, incluindo a especificação das proposições lógicas, dos estados, da função de transição e da associação entre estados e os pesos da função de recompensa. A formulação aqui apresentada tem caráter técnico e complementa a descrição conceitual introduzida no Capítulo~4.
+
+\section{Função de Rotulagem}
+
+A Máquina de Recompensa não opera diretamente sobre o vetor de observação contínuo dos agentes, mas sim sobre proposições lógicas derivadas desse vetor. Para isso, define-se uma função de rotulagem responsável por mapear a observação local de cada agente para o conjunto de proposições válidas no instante considerado.
+
+Seja $\mathbf{o}_i(t) \in \mathcal{O}$ o vetor de observação do agente $i$ no instante $t$. Define-se a função de rotulagem:
+\[
+L : \mathcal{O} \rightarrow 2^{\mathcal{P}},
+\]
+onde $\mathcal{P} = \{\mathcal{P}_1, \mathcal{P}_2, \mathcal{P}_3\}$ é o conjunto de proposições lógicas da RM, e $2^{\mathcal{P}}$ representa o conjunto das partes de $\mathcal{P}$.
+
+A função $L(\mathbf{o}_i(t))$ retorna o subconjunto de proposições avaliadas como verdadeiras a partir da observação do agente no instante $t$. As proposições são definidas como:
+\begin{align*}
+\mathcal{P}_1 &: z_i(t) > z_{\min}, 
+&& \text{(agente acima da altitude mínima de estabilização)} \\
+\mathcal{P}_2 &: d_i^{\mathrm{obs}}(t) > d_{\mathrm{obs}}, 
+&& \text{(agente em região segura em relação a obstáculos)} \\
+\mathcal{P}_3 &: d_i^{\mathrm{nbr}}(t) < d_{\mathrm{coop}},
+&& \text{(agente próximo a pelo menos um vizinho)}.
+\end{align*}
+
+Assim, a avaliação das proposições no instante $t$ é dada por:
+\[
+L(\mathbf{o}_i(t)) =
+\{\mathcal{P}_k \in \mathcal{P} \mid \mathcal{P}_k \text{ é verdadeira em } \mathbf{o}_i(t)\}.
+\]
+
+\section{Estados da Máquina de Recompensa}
+
+Seja $u_i(t) \in \mathcal{U}$ o estado da Máquina de Recompensa do agente $i$ no instante $t$, onde o conjunto de estados é definido como:
+\[
+\mathcal{U} = \{H, S, C, O\},
+\]
+correspondendo, respectivamente, aos estados de \textit{hovering} ($H$), navegação individual (\textit{single-moving}, $S$), navegação cooperativa (\textit{coop-moving}, $C$) e desvio de obstáculos (\textit{obstacle-avoiding}, $O$).
+
+\section{Associação entre Estados da RM e Pesos da Recompensa}
+
+Cada estado da Máquina de Recompensa está associado a um vetor específico de pesos da função de recompensa, refletindo diferentes prioridades comportamentais. Seja definido o vetor de pesos:
+\[
+\mathbf{w}^{(u)} =
+\big[
+w_{\mathrm{pos}}^{(u)},\;
+w_{\Delta}^{(u)},\;
+w_{\mathrm{align}}^{(u)},\;
+w_{\mathrm{smooth}}^{(u)}
+\big],
+\]
+onde $u \in \mathcal{U}$.
+
+Para fins de notação compacta, define-se:
+\begin{align*}
+\mathbf{w}^{(H)} &\equiv \mathbf{w}_{\text{hovering}}, \\
+\mathbf{w}^{(S)} &\equiv \mathbf{w}_{\text{single}}, \\
+\mathbf{w}^{(C)} &\equiv \mathbf{w}_{\text{coop}}, \\
+\mathbf{w}^{(O)} &\equiv \mathbf{w}_{\text{obstacle}}.
+\end{align*}
+
+O vetor de pesos ativo para o agente $i$ no instante $t$ é então determinado diretamente pelo estado corrente da RM:
+\[
+\mathbf{w}_i(t) = \mathbf{w}^{\big(u_i(t)\big)}.
+\]
+
+A formulação matemática completa da função de recompensa, incluindo a definição explícita de todos os termos e seus intervalos de valores, é apresentada na seção seguinte deste apêndice.
+
+\section{Função de Transição}
+
+A dinâmica da Máquina de Recompensa é definida por uma função de transição:
+\[
+\delta : \mathcal{U} \times 2^{\mathcal{P}} \rightarrow \mathcal{U} \times \mathcal{W},
+\]
+onde $\mathcal{W}$ denota o conjunto de configurações de pesos da função de recompensa.
+
+A função de transição recebe como entrada o estado corrente da RM e o conjunto de proposições retornado pela função de rotulagem no instante seguinte, produzindo como saída o próximo estado da RM e o vetor de pesos associado:
+\[
+(u_i(t+1), \mathbf{w}^{(u_i(t+1))}) =
+\delta\big(u_i(t), L(\mathbf{o}_i(t+1))\big).
+\]
+
+A transição entre estados é definida a partir das proposições avaliadas, conforme as seguintes regras, aplicadas em ordem de prioridade:
+\begin{equation}
+u_i(t+1) =
+\begin{cases}
+H, & \text{se } \neg \mathcal{P}_1, \\[0.3em]
+O, & \text{se } \mathcal{P}_1 \land \neg \mathcal{P}_2, \\[0.3em]
+C, & \text{se } \mathcal{P}_1 \land \mathcal{P}_2 \land \mathcal{P}_3, \\[0.3em]
+S, & \text{se } \mathcal{P}_1 \land \mathcal{P}_2 \land \neg \mathcal{P}_3.
+\end{cases}
+\label{eq:rm_transition}
+\end{equation}

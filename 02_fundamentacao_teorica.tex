@@ -350,7 +350,7 @@ Os desafios de coordenação em enxames de UAVs exigem estratégias de \textit{M
 Dentre os algoritmos de Aprendizado por Reforço Multiagente (MARL) mais consolidados para controle de enxames, destacam-se:
 
 \begin{itemize}
-    \item \textbf{MADDPG} \cite{lowe2017multi}: Baseado no paradigma CTDE (Centralized Training with Decentralized Execution), combina redes \textit{actor-critic} com críticos centralizados, sendo especialmente eficaz em espaços de ação contínuos — ideal para ajustes precisos de trajetória em UAVs.
+    \item \textbf{MAPPO} \cite{yu2021mappo}: Baseado no paradigma CTDE (Centralized Training with Decentralized Execution), combina redes \textit{actor-critic} com críticos centralizados, sendo especialmente eficaz em espaços de ação contínuos — ideal para ajustes precisos de trajetória em UAVs.
     
     \item \textbf{VDN} \cite{sunehag2017value}: Decompõe o valor global do enxame em uma soma de Q-valores individuais, o que facilita a otimização distribuída em tarefas como a cobertura eficiente de áreas.
     
@@ -360,6 +360,139 @@ Dentre os algoritmos de Aprendizado por Reforço Multiagente (MARL) mais consoli
 Apesar dos avanços recentes, diversos desafios práticos ainda persistem. Algoritmos CTDE, como o QMIX, demandam comunicação de alta frequência durante o treinamento, o que limita sua aplicabilidade em sistemas com restrições energéticas \cite{rashid2018qmix}. Por outro lado, abordagens totalmente descentralizadas (DTDE) enfrentam a ``maldição da dimensionalidade'', especialmente em ambientes parcialmente observáveis \cite{schulman2017}. Além disso, a maioria das validações ocorre em simulações homogêneas, enquanto aplicações reais introduzem variabilidades como heterogeneidade de sensores, atrasos de comunicação e falhas de hardware não modeladas \cite{yang2018mean}.
 
 Nesse contexto, a integração de MARL com técnicas de \textit{transfer learning} e arquiteturas neuro-simbólicas desponta como uma estratégia promissora para superar essas limitações e aproximar a pesquisa do uso prático em campo.
+
+
+\subsection{Multi-Agent Proximal Policy Optimization (MAPPO)}
+\label{subsec:mappo}
+
+O \textit{Multi-Agent Proximal Policy Optimization} (MAPPO) é um algoritmo de aprendizado por reforço multiagente que estende o método \textit{Proximal Policy Optimization} (PPO), proposto originalmente por Schulman et al.~\cite{schulman2017ppo}, para cenários cooperativos com múltiplos agentes. O MAPPO foi formalizado por Yu et al.~\cite{yu2021mappo} como uma alternativa estável e escalável para problemas caracterizados por observabilidade parcial e necessidade de coordenação, como aqueles encontrados em sistemas de enxames de veículos aéreos não tripulados.
+
+O MAPPO adota o paradigma de \textit{Centralized Training with Decentralized Execution} (CTDE), no qual o treinamento das políticas é realizado de forma centralizada, enquanto a execução ocorre de maneira descentralizada. Nesse contexto, cada agente executa uma política local baseada apenas em suas observações individuais, ao passo que, durante o treinamento, um crítico centralizado pode explorar informações globais do sistema para estimar funções de valor mais informativas, reduzindo a variância das atualizações de política.
+
+Considere um sistema composto por $N$ agentes. Cada agente $i$ observa, no instante $t$, uma observação local $\mathbf{o}_i(t)$ e executa uma ação $\mathbf{a}_i(t)$ de acordo com uma política estocástica parametrizada $\pi_\theta$, compartilhada entre todos os agentes:
+\[
+\mathbf{a}_i(t) \sim \pi_\theta(\mathbf{a}_i \mid \mathbf{o}_i).
+\]
+O compartilhamento de parâmetros entre agentes, prática adotada no MAPPO, contribui para a escalabilidade do algoritmo e para a emergência de comportamentos cooperativos simétricos~\cite{yu2021mappo}.
+
+Durante o treinamento, o MAPPO emprega um crítico centralizado $V_\phi$, que estima o valor esperado do retorno a partir de um estado global ou de uma concatenação das observações dos agentes:
+\[
+V_\phi(\mathbf{s}(t)) \approx \mathbb{E}\!\left[ \sum_{k=0}^{\infty} \gamma^k r(t+k) \,\middle|\, \mathbf{s}(t) \right],
+\]
+onde $\mathbf{s}(t)$ representa o estado global disponível apenas durante o treinamento, $r(t)$ é a recompensa compartilhada e $\gamma \in (0,1)$ é o fator de desconto.
+
+O MAPPO herda do PPO a função objetivo baseada em \textit{clipping}, projetada para limitar variações excessivas na política durante as atualizações e garantir estabilidade no processo de aprendizado~\cite{schulman2017ppo}. A função objetivo otimizada pelo ator é dada por:
+\[
+\mathcal{L}^{\text{CLIP}}(\theta) =
+\mathbb{E}_t \left[
+\min \left(
+\rho_t(\theta) \hat{A}_t,\;
+\mathrm{clip}\big(\rho_t(\theta), 1-\epsilon, 1+\epsilon\big)\hat{A}_t
+\right)
+\right],
+\]
+em que $\rho_t(\theta) = \frac{\pi_\theta(\mathbf{a}_i(t)\mid \mathbf{o}_i(t))}{\pi_{\theta_{\text{old}}}(\mathbf{a}_i(t)\mid \mathbf{o}_i(t))}$ é a razão de probabilidade entre a política atual e a anterior, $\epsilon$ é o parâmetro de \textit{clipping} e $\hat{A}_t$ representa a estimativa da vantagem.
+
+A estimativa da vantagem é tipicamente calculada por meio do método de \textit{Generalized Advantage Estimation} (GAE), introduzido por Schulman et al.~\cite{schulman2016gae}, que combina viés e variância de forma controlada:
+\[
+\hat{A}_t = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l},
+\quad
+\delta_t = r(t) + \gamma V_\phi(\mathbf{s}(t+1)) - V_\phi(\mathbf{s}(t)),
+\]
+onde $\lambda \in (0,1)$ é o parâmetro de suavização temporal.
+
+Ao combinar a estabilidade do PPO com o formalismo CTDE, o MAPPO fornece uma abordagem robusta para aprendizado por reforço multiagente em ambientes contínuos e parcialmente observáveis, sendo amplamente adotado em tarefas cooperativas complexas, incluindo controle de formações e coordenação de enxames robóticos~\cite{yu2021mappo}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm and 2.4cm,
+    actor/.style={rectangle, draw, fill=blue!15, minimum width=3.2cm, minimum height=0.9cm, align=center},
+    critic/.style={rectangle, draw, fill=red!15, minimum width=3.2cm, minimum height=0.9cm, align=center},
+    env/.style={rectangle, draw, fill=green!15, minimum width=3.2cm, minimum height=0.9cm, align=center},
+    buffer/.style={rectangle, draw, fill=gray!15, minimum width=3.2cm, minimum height=0.9cm, align=center},
+    update/.style={rectangle, draw, fill=yellow!20, minimum width=3.2cm, minimum height=0.9cm, align=center},
+    arrow/.style={->, thick},
+    dashedarrow/.style={->, thick, dashed},
+    every node/.style={font=\footnotesize}
+]
+
+% Nodes
+\node[actor] (actor) {Shared Actor\\$\pi_\theta(\mathbf{a}_i \mid \mathbf{o}_i)$};
+
+\node[env, below=of actor] (env) {Multi-Agent Environment};
+
+\node[critic, right=of env] (critic) {Centralized Critic\\$V_\phi(\mathbf{s})$};
+
+\node[buffer, below=of env] (buffer) {Trajectory Buffer};
+
+\node[update, below=of buffer] (update) {PPO + GAE\\Update};
+
+% Execution flow
+\draw[arrow] (actor) -- node[left] {local actions $\mathbf{a}_i$} (env);
+\draw[arrow] (env) -- node[left] {local obs $\mathbf{o}_i$} (actor);
+
+% Centralized training flow
+\draw[arrow] (env) -- node[above] {global state $\mathbf{s}$} (critic);
+\draw[arrow] (critic) -- node[right] {value estimates} (buffer);
+
+\draw[arrow] (env) -- node[left] {trajectories} (buffer);
+
+\draw[arrow] (buffer) -- node[left] {advantages} (update);
+
+\draw[dashedarrow] (update.west) -| node[above] {policy \& value update} (actor.west);
+\draw[dashedarrow] (update.east) -| (critic.east);
+
+% Labels
+\node[above=0.4cm of actor] {\textbf{Decentralized Execution}};
+\node[right=0.2cm of critic] {\textbf{Centralized Training}};
+
+\end{tikzpicture}
+\caption{Fluxograma do treinamento MAPPO no paradigma de Treinamento Centralizado com Execução Descentralizada (CTDE). Durante a execução, cada agente utiliza apenas observações locais por meio de uma política compartilhada. Durante o treinamento, um crítico centralizado explora o estado global para atualizar os parâmetros da política e da função de valor.}
+\label{fig:ctde_flow}
+\end{figure}
+
+\subsection{Descrição Algorítmica do MAPPO}
+
+O Algoritmo~\ref{algo:mappo} apresenta o fluxo geral de treinamento do MAPPO no paradigma de \textit{Centralized Training with Decentralized Execution} (CTDE). Durante a coleta de experiências, cada agente executa ações de forma descentralizada a partir de observações locais, utilizando uma política compartilhada entre todos os agentes. Em contrapartida, a atualização dos parâmetros é realizada de forma centralizada, explorando um crítico global que tem acesso ao estado conjunto do sistema.
+
+A interação com o ambiente gera trajetórias multiagentes compostas por observações locais, ações e recompensas compartilhadas, que são armazenadas em um buffer de experiências. A partir dessas trajetórias, são estimadas as vantagens utilizando o método de \textit{Generalized Advantage Estimation} (GAE). O ator é então atualizado por meio da função objetivo com \textit{clipping} do PPO, enquanto o crítico é otimizado por regressão sobre o retorno esperado.
+
+Esse procedimento permite reduzir a variância das atualizações de política, ao mesmo tempo em que preserva a execução descentralizada, característica fundamental para aplicações em sistemas distribuídos, como enxames de VANTs.
+
+\begin{algorithm}[H]
+\caption{Multi-Agent Proximal Policy Optimization (MAPPO)}
+\label{algo:mappo}
+\begin{algorithmic}[1]
+\STATE Inicializar política compartilhada $\pi_\theta$ e crítico centralizado $V_\phi$
+\FOR{episódio = $1$ até $N_{\text{episódios}}$}
+    \STATE Inicializar ambiente multiagente
+    \STATE Inicializar buffer de trajetórias $\mathcal{B} \leftarrow \emptyset$
+    \FOR{passo = $1$ até $T$}
+        \FOR{cada agente $i = 1,\dots,N$}
+            \STATE Observar estado local $\mathbf{o}_i(t)$
+            \STATE Amostrar ação $\mathbf{a}_i(t) \sim \pi_\theta(\cdot \mid \mathbf{o}_i(t))$
+        \ENDFOR
+        \STATE Executar ação conjunta $\mathbf{a}(t)$ no ambiente
+        \STATE Obter recompensa compartilhada $r(t)$ e novas observações
+        \STATE Armazenar $(\mathbf{o}(t), \mathbf{a}(t), r(t), \mathbf{o}(t+1))$ em $\mathcal{B}$
+    \ENDFOR
+    \STATE Estimar vantagens $\hat{A}_t$ usando GAE
+    \FOR{época de atualização = $1$ até $K$}
+        \STATE Atualizar crítico: $\phi \leftarrow \phi - \alpha_V \nabla_\phi \mathcal{L}_V$
+        \STATE Atualizar ator via PPO:
+        \[
+        \theta \leftarrow \theta - \alpha_\pi \nabla_\theta 
+        \mathbb{E}\big[\min(\rho_t \hat{A}_t,
+        \mathrm{clip}(\rho_t,1-\epsilon,1+\epsilon)\hat{A}_t)\big]
+        \]
+    \ENDFOR
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
+
 
 %\subsection{MARL para Enxames de VANTs}
 %O MARL é particularmente adequado para controle de enxames de UAVs devido à sua capacidade de:
