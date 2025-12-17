@@ -1,79 +1,91 @@
 \section{Implementação do Algoritmo MAPPO}
 \label{sec:algoritmo_aprendizado}
 
+Este capítulo descreve a implementação prática do algoritmo \textit{Multi-Agent Proximal Policy Optimization} (MAPPO) nos ambientes AirSim e IsaacSim. Em ambos os casos, a formulação do algoritmo segue como base o trabalho de referência apresentado em \cite{yu2021mappo}. No entanto, pequenas diferenças de implementação são observadas em função das bibliotecas de aprendizado por reforço adotadas em cada simulador, bem como das particularidades da integração entre o algoritmo e o ambiente de simulação.
+
+O foco desta seção está nas arquiteturas das redes neurais do ator e do crítico, uma vez que as principais diferenças entre as duas implementações decorrem da natureza das observações disponíveis em cada ambiente. Enquanto o AirSim fornece observações multimodais, incluindo dados visuais e vetoriais, o IsaacSim adota um espaço de observação puramente vetorial, mais próximo do nível dinâmico do controle. Essas diferenças motivaram escolhas arquiteturais distintas, discutidas ao longo desta seção.
 
 
-\subsection{Arquitetura Geral do MAPPO Utilizado}
-\label{subsec:mappo_arquitetura_geral}
+\subsection{Implementação no Ambiente AirSim com TorchRL}
+\label{subsec:mappo_airsim_torchrl}
 
-% Descrição geral do algoritmo MAPPO
-% Uso do PPO como método base
-% Função objetivo com clipping
-% Estimativa de vantagem via GAE
-% Estrutura ator-crítico
-% Política descentralizada e crítico centralizado
-
-\subsection{Implementação do MAPPO no Ambiente AirSim}
-\label{subsec:mappo_airsim}
-
-\subsubsection{Integração entre Simulador e Algoritmo}
+\subsubsection{Desafios na Integração entre Simulador e Algoritmo}
 \label{subsubsec:airsim_integracao}
 
-% Desafios de compatibilidade entre AirSim e TorchRL
-% Uso de Docker para conteinerização
-% Comunicação via UDP local
-% Impactos na latência e taxa de amostragem
+A implementação do algoritmo MAPPO no ambiente AirSim apresentou desafios específicos relacionados à integração entre o simulador e a biblioteca de aprendizado por reforço adotada. Em particular, incompatibilidades entre versões de dependências do AirSim e da biblioteca TorchRL impossibilitaram a execução conjunta de ambos em um único ambiente de execução.
 
-\subsubsection{Implementação do MAPPO com TorchRL}
-\label{subsubsec:airsim_torchrl}
+Para contornar esse problema, optou-se pela utilização de contêineres Docker, isolando o simulador AirSim e o processo de treinamento do algoritmo de aprendizado por reforço em ambientes distintos. A comunicação entre os dois processos foi realizada por meio de sockets UDP em uma interface de rede local, permitindo o envio das observações do ambiente ao algoritmo e o retorno das ações computadas pela política.
 
-% Descrição do pipeline com TorchRL
-% DataSyncCollector
-% ProbabilisticActor
-% GAEAdvantage
-% ClipLoss
-% Fluxo geral de coleta e atualização
+Essa abordagem possibilitou manter o uso do AirSim, que oferece uma camada de abstração realista baseada em controladores de voo como PX4 e ArduPilot, ao custo de um aumento na complexidade da infraestrutura de treinamento. Como consequência, fatores como latência de comunicação, sincronização entre processos e taxa efetiva de amostragem tornaram-se aspectos relevantes no projeto do sistema, exigindo cuidados adicionais na definição do número de passos por episódio e no balanceamento entre estabilidade do treinamento e desempenho computacional.
+
+Apesar dessas limitações, essa arquitetura permitiu explorar plenamente as capacidades sensoriais do AirSim, em especial a utilização de imagens de profundidade, e serviu como base para os experimentos iniciais do trabalho.
 
 \subsubsection{Arquitetura das Redes Neurais no AirSim}
 \label{subsubsec:airsim_redes}
 
-% Arquitetura do crítico com mecanismo de atenção
-% Uso da matriz de vizinhança
-% Extração de features (velocidade, distâncias, obstáculos)
-% Arquitetura do ator com CNN para depth image
-% Fusão de observações visuais e vetoriais
+As arquiteturas das redes neurais do ator e do crítico no ambiente AirSim foram definidas considerando a natureza multimodal do espaço de observação, que combina informações visuais provenientes de imagens de profundidade e observações vetoriais relacionadas ao estado cinemático do agente, à posição do objetivo, à presença de obstáculos e à configuração do enxame.
 
-\subsection{Implementação do MAPPO no Ambiente IsaacLab}
+A rede do ator adota uma arquitetura multimodal, na qual as imagens de profundidade são processadas por uma rede convolucional (CNN) para extração de características espaciais relevantes à navegação e ao desvio de obstáculos, enquanto as observações vetoriais são tratadas por camadas totalmente conectadas (MLP). As representações extraídas por esses dois ramos são então concatenadas e utilizadas para a geração das ações contínuas de cada agente. A Figura~\ref{fig:mappo_actor_airsim} ilustra a arquitetura completa da rede do ator, destacando o fluxo de informações desde os diferentes tipos de observação até a saída de ações.
+%%TODO deixar claro que no AirSim nao foi implementado a RM por isso o estado da maquina nao esta no espaco de obsevacoes.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/policy_net_airsim.jpeg}
+    \caption{Arquitetura da rede do ator no ambiente AirSim, evidenciando o processamento multimodal das observações visuais e vetoriais.}
+    \label{fig:mappo_actor_airsim}
+\end{figure}
+
+A rede do crítico segue o paradigma de treinamento centralizado com execução descentralizada (CTDE) e foi projetada para estimar o valor global do estado a partir de informações compartilhadas do enxame. Diferentemente de abordagens baseadas na simples concatenação das observações individuais dos agentes, o crítico incorpora um mecanismo de atenção aplicado às informações de vizinhança, permitindo ponderar dinamicamente a contribuição relativa de cada agente na estimativa do valor global.
+
+O uso de atenção tem como principal objetivo melhorar a capacidade de generalização do crítico para diferentes tamanhos e formações de enxame, reduzindo a sensibilidade a variações no número de agentes e favorecendo uma modelagem mais expressiva das interações entre eles durante a navegação cooperativa. Além disso, essa estratégia contribui para limitar o crescimento do número de parâmetros do modelo, ao evitar representações excessivamente dependentes da dimensão do enxame.
+
+A arquitetura da rede do crítico é apresentada na Figura~\ref{fig:mappo_critic_airsim}, na qual é possível observar o processamento centralizado das informações, o bloco de atenção e a posterior agregação das representações para a estimativa do valor de estado.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{fig/critic_net.jpeg}
+    \caption{Arquitetura da rede do crítico no ambiente AirSim, baseada em atenção para modelagem das interações entre agentes do enxame.}
+    \label{fig:mappo_critic_airsim}
+\end{figure}
+
+A arquitetura do crítico demonstra uma maior simplicidade em relação ao conjunto de entradas utilizadas, quando comparada à rede do ator. Em particular, informações visuais provenientes das imagens de profundidade não foram incorporadas ao crítico. Essa escolha foi motivada pela intenção de estimar o retorno esperado a partir de uma visão global e abstrata do estado do enxame, enfatizando relações entre agentes, progresso coletivo e condições de navegação, em vez de detalhes perceptivos locais.
+
+Embora essa simplificação contribua para reduzir a dimensionalidade do espaço de entrada e o número total de parâmetros do modelo, seus efeitos práticos revelaram limitações importantes. Como será discutido na Seção~\ref{subsec:mappo_comparacao}, a ausência de informações perceptivas mais ricas no crítico resultou em dificuldades na estimativa precisa do valor de estado, refletidas em valores elevados da função de perda do crítico durante o treinamento. Esse comportamento impactou negativamente a estabilidade do aprendizado, evidenciando a importância de um balanceamento adequado entre simplicidade arquitetural e expressividade do modelo no contexto de aprendizado multiagente.
+
+
+
+%%%%% IsaacLAB
+\subsection{Implementação no Ambiente IsaacLab}
 \label{subsec:mappo_isaaclab}
 
-\subsubsection{Integração entre Simulador e Algoritmo}
-\label{subsubsec:isaaclab_integracao}
+A implementação do algoritmo MAPPO no ambiente IsaacSim foi realizada utilizando o framework
+IsaacLab, que oferece integração nativa entre simulação física, ambiente de aprendizado por
+reforço e algoritmo de treinamento. Diferentemente do cenário baseado em AirSim, simulação e
+aprendizado ocorrem no mesmo processo, reduzindo latência de comunicação e simplificando a
+engenharia do treinamento.
 
-% Uso do IsaacLab com integração nativa
-% Biblioteca skrl
-% Ambiente e algoritmo no mesmo processo
-% Benefícios em desempenho e estabilidade
+O algoritmo MAPPO foi instanciado por meio da biblioteca \textit{skrl}, integrada ao IsaacLab,
+permitindo acesso direto às observações do simulador e maior eficiência na coleta de experiências.
+Essa integração favoreceu maior estabilidade numérica e taxas de amostragem significativamente
+superiores quando comparadas à abordagem baseada em processos desacoplados.
 
-\subsubsection{Implementação do MAPPO com \textit{skrl}}
-\label{subsubsec:isaaclab_skrl}
-
-% MAPPO fornecido pela biblioteca skrl
-% Interface direta com ambientes IsaacLab
-% Simplificação da engenharia do treinamento
-
-\subsubsection{Arquitetura das Redes Neurais no IsaacSim}
+\subsubsection{Arquitetura das Redes Neurais}
 \label{subsubsec:isaaclab_redes}
 
-% Arquitetura do ator (MLP)
-% Arquitetura do crítico (MLP mais profundo)
-% Dimensões das camadas
-% Justificativa baseada no espaço de observação vetorial
+No ambiente IsaacLab, tanto a política (ator) quanto o crítico foram implementados utilizando
+arquiteturas baseadas exclusivamente em redes totalmente conectadas (MLP), em função do espaço de
+observação ser composto apenas por variáveis vetoriais contínuas.
 
-\subsection{Discussão Comparativa das Implementações}
-\label{subsec:mappo_comparacao}
+A rede do ator recebe como entrada a observação individual de cada agente, incluindo estados
+cinemáticos, informações relativas a obstáculos, vizinhos próximos e o estado da Máquina de
+Recompensa codificado em formato \textit{one-hot}. Essa entrada é processada por uma MLP com duas
+camadas ocultas de 128 neurônios, produzindo diretamente os comandos contínuos de empuxo e momentos.
 
-% Comparação entre AirSim e IsaacLab
-% Complexidade de integração
-% Diferenças arquiteturais
-% Impacto no desempenho e estabilidade
-% Preparação para a seção de treinamento e resultados
+O crítico adota uma arquitetura mais profunda, composta por três camadas ocultas de dimensões
+128, 128 e 64 neurônios. Sob o paradigma de treinamento centralizado, sua entrada é formada pela
+concatenação direta das observações individuais de todos os agentes, representando o estado
+global do enxame. Essa configuração permite estimar o valor do estado considerando a configuração
+completa do sistema, sem o uso de mecanismos adicionais de atenção.
+
+A inclusão explícita do estado da Máquina de Recompensa no espaço de observação permite que ator e
+crítico condicionem suas estimativas ao estágio corrente da tarefa, contribuindo para maior
+estabilidade e coerência comportamental durante o treinamento.
