@@ -80,11 +80,81 @@ cinemáticos, informações relativas a obstáculos, vizinhos próximos e o esta
 Recompensa codificado em formato \textit{one-hot}. Essa entrada é processada por uma MLP com duas
 camadas ocultas de 128 neurônios, produzindo diretamente os comandos contínuos de empuxo e momentos.
 
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.1cm,
+    box/.style={
+        rectangle, draw, rounded corners,
+        minimum width=2.6cm, minimum height=0.8cm,
+        align=center, font=\footnotesize
+    },
+    arrow/.style={->, thick}
+]
+
+% Nodes
+\node[box] (obs) {Observação do Agente\\
+\scriptsize (estado cinemático,\\ obstáculos, vizinhos, RM) \\ (23x1)};
+\node[box, below=of obs] (fc1) {MLP\\
+128 neurônios + ReLU};
+\node[box, below=of fc1] (fc2) {MLP\\
+128 neurônios + ReLU};
+\node[box, below=of fc2] (out) {Ações Contínuas\\
+\scriptsize (4x1: empuxo e momentos)};
+
+% Arrows
+\draw[arrow] (obs) -- (fc1);
+\draw[arrow] (fc1) -- (fc2);
+\draw[arrow] (fc2) -- (out);
+
+\end{tikzpicture}
+\caption{Arquitetura da rede do ator utilizada no ambiente IsaacLab. A política é descentralizada e compartilhada entre os agentes, operando apenas sobre observações vetoriais individuais.}
+\label{fig:mappo_actor_isaaclab}
+\end{figure}
+
+
+
 O crítico adota uma arquitetura mais profunda, composta por três camadas ocultas de dimensões
 128, 128 e 64 neurônios. Sob o paradigma de treinamento centralizado, sua entrada é formada pela
 concatenação direta das observações individuais de todos os agentes, representando o estado
 global do enxame. Essa configuração permite estimar o valor do estado considerando a configuração
 completa do sistema, sem o uso de mecanismos adicionais de atenção.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.1cm,
+    box/.style={
+        rectangle, draw, rounded corners,
+        minimum width=3.2cm, minimum height=0.8cm,
+        align=center, font=\footnotesize
+    },
+    arrow/.style={->, thick}
+]
+
+% Nodes
+\node[box] (state) {Estado Global\\
+\scriptsize Concatenação das\\ observações dos agentes\\ (N x 23)};
+\node[box, below=of state] (fc1) {MLP\\
+128 neurônios + ReLU};
+\node[box, below=of fc1] (fc2) {MLP\\
+128 neurônios + ReLU};
+\node[box, below=of fc2] (fc3) {MLP\\
+64 neurônios + ReLU};
+\node[box, below=of fc3] (value) {Valor do Estado\\
+$V(s)$};
+
+% Arrows
+\draw[arrow] (state) -- (fc1);
+\draw[arrow] (fc1) -- (fc2);
+\draw[arrow] (fc2) -- (fc3);
+\draw[arrow] (fc3) -- (value);
+
+\end{tikzpicture}
+\caption{Arquitetura da rede do crítico no ambiente IsaacLab. O crítico opera sob o paradigma de treinamento centralizado, estimando o valor do estado global a partir da concatenação direta das observações individuais dos agentes.}
+\label{fig:mappo_critic_isaaclab}
+\end{figure}
+
 
 A inclusão explícita do estado da Máquina de Recompensa no espaço de observação permite que ator e
 crítico condicionem suas estimativas ao estágio corrente da tarefa, contribuindo para maior
