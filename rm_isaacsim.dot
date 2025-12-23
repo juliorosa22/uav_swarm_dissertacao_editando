@@ -1,0 +1,51 @@
+digraph RM {
+    rankdir=LR;
+    fontsize=12;
+    labelloc="t";
+    label="Máquina de Recompensa (RM) — IsaacSim";
+
+    node [
+        shape=circle,
+        style=thick,
+        width=0.9,
+        fixedsize=true,
+        fontname="Times New Roman"
+    ];
+
+    edge [
+        fontname="Times New Roman",
+        fontsize=10
+    ];
+
+    /* Estados */
+    H [label="H"];
+    S [label="S"];
+    C [label="C"];
+    O [label="O"];
+
+    /* Estado inicial */
+    init [shape=point, width=0.1, label=""];
+    init -> H;
+
+    /* Self-loops (persistência do estado) */
+    H -> H [label="⟨·, 𝒘_hover⟩"];
+    S -> S [label="⟨·, 𝒘_single⟩"];
+    C -> C [label="⟨·, 𝒘_coop⟩"];
+    O -> O [label="⟨·, 𝒘_obstacle⟩"];
+
+    /* Transições principais */
+    H -> S [label="⟨𝒫₁, 𝒘_single⟩"];
+
+    S -> C [label="⟨𝒫₃, 𝒘_coop⟩"];
+    C -> S [label="⟨¬𝒫₃, 𝒘_single⟩"];
+
+    S -> O [label="⟨¬𝒫₂, 𝒘_obstacle⟩"];
+    C -> O [label="⟨¬𝒫₂, 𝒘_obstacle⟩"];
+
+    O -> S [label="⟨𝒫₂, 𝒘_single⟩"];
+
+    /* Override para Hover */
+    S -> H [label="⟨¬𝒫₁, 𝒘_hover⟩"];
+    C -> H [label="⟨¬𝒫₁, 𝒘_hover⟩"];
+    O -> H [label="⟨¬𝒫₁, 𝒘_hover⟩"];
+}

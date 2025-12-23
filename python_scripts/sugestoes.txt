@@ -1,0 +1,19 @@
+Question: "Summarize how the reviewed works address scalability and coordination "
+        "in multi-agent UAV swarm systems, and identify common limitations."
+
+Os trabalhos revisados abordam a **escalabilidade e coordenação** em sistemas de enxames de UAVs multiagentes por meio de abordagens descentralizadas e baseadas em aprendizado por reforço, priorizando a colaboração sem controladores centralizados.
+
+Yang et al. (2022) destacam desafios como instabilidade comunicacional no ar, observações locais parciais e heterogeneidade de capacidades computacionais, propondo aprendizado por imitação inter-relacionado para coordenação distribuída em UAVs heterogêneos, com benchmarks como MAGAIL, POfD e ILPO testados em formações com distâncias seguras (1,5 m) e velocidades uniformes (9 m/s)[ID12_B. Yang et al. - 2022].[ID12_B. Yang et al. - 2022 - An Interrelated Imitation Learning Method for Heterogeneous Drone Swarm Coordination.pdf]
+
+Ma et al. (2023) empregam arquitetura hierárquica para controle de formação visual, integrando detecção YOLOv5/DeepSORT e protocolos de roteamento, com referências a navegação colaborativa hierárquica e realocação dinâmica de tarefas[ID9_Ma et al. - 2023 - Vision-Based Formation Control for an Outdoor UAV Swarm With Hierarchical Architecture.pdf].[ID9_Ma et al. - 2023 - Vision-Based Formation Control for an Outdoor UAV Swarm With Hierarchical Architecture.pdf]
+
+O estudo em ID_13.pdf apresenta o algoritmo EN-MASCA, aprimorado com DQN e PPO para navegação, evasão de obstáculos e controle de atitude via modelo de seis graus de liberdade e laço PI, superando MASCA, NNCA e NSGAII em trajetória, estabilidade e efeito simulativo para patrulha em pomares[ID_13.pdf].[ID_13.pdf]
+
+Zhou et al. (2024) desenvolvem o framework P-DRL para controle de formação dinâmica sob incerteza operacional, citando estratégias distribuídas de formação e evasão de colisões em topologias fixas e comutadas[ID1_Zhou et al. - 2024 - P-DRL A Framework for Multi-UAVs Dynamic Formation Control under Operational Uncertainty and Unknow.pdf].[ID1_Zhou et al. - 2024 - P-DRL A Framework for Multi-UAVs Dynamic Formation Control under Operational Uncertainty and Unknow.pdf]
+
+**Limitações comuns** incluem dificuldades em eficiência de aprendizado distribuído, definição precisa de recompensas em ambientes dinâmicos e dependência de conectividade confiável sem garantias, além de heterogeneidade que gera gaps em execução, conforme enfatizado por Yang et al. (2022)[ID12_B. Yang et al. - 2022].[ID12_B. Yang et al. - 2022 - An Interrelated Imitation Learning Method for Heterogeneous Drone Swarm Coordination.pdf]
+
+Question: "Consolidate the main performance metrics used in the reviewed studies and discuss their limitations."
+        "Summarize in a concise paragraph."
+Os estudos revisados empregam métricas de desempenho como **recompensa acumulada**, **distância mínima de rastreamento**, **taxa de vitória média**, **número restante de UAVs**, **taxa de sucesso**, **tempo médio de conclusão** e **comprimento médio do caminho** para avaliar algoritmos de aprendizado por reforço em tarefas de UAVs, tais como rastreamento autônomo (Wang et al., 2023)[ID7_Wang et al.], combate aéreo (Zheng et al., 2024)[ID2_Zheng et al.], pastoreio colaborativo (G. Wang et al., 2024)[ID5_G. Wang et al.] e alocação de tarefas de cobertura (Liu et al., 2024)[ID4_Liu et al.], demonstrando superioridade de métodos propostos em cenários controlados. Contudo, essas métricas apresentam limitações, como dependência de ambientes simulados com obstáculos fixos ou escalas específicas (ex.: 3-vs-3 ou 5-vs-5), pouca ênfase em cenários complexos com múltiplos obstáculos móveis, falta de robustez geral (evidenciada por variações em diferentes ambientes) e ausência de avaliações de custo computacional em tarefas de grande escala, o que compromete a generalização e a aplicabilidade prática.[ID7_Wang et al.][ID2_Zheng et al.][ID5_G. Wang et al.]
+

@@ -77,7 +77,7 @@ onde $\mathcal{W}$ denota o conjunto de configurações de pesos da função de 
 A função de transição recebe como entrada o estado corrente da RM e o conjunto de proposições retornado pela função de rotulagem no instante seguinte, produzindo como saída o próximo estado da RM e o vetor de pesos associado:
 \[
 (u_i(t+1), \mathbf{w}^{(u_i(t+1))}) =
-\delta\big(u_i(t), L(\mathbf{o}_i(t+1))\big).
+\delta\big(u_i(t), L(\mathbf{o}_i(t))\big).
 \]
 
 A transição entre estados é definida a partir das proposições avaliadas, conforme as seguintes regras, aplicadas em ordem de prioridade:
@@ -91,3 +91,21 @@ S, & \text{se } \mathcal{P}_1 \land \mathcal{P}_2 \land \neg \mathcal{P}_3.
 \end{cases}
 \label{eq:rm_transition}
 \end{equation}
+
+Para facilitar a interpretação dessa dinâmica, a Figura~\ref{fig:rm_machine} apresenta
+o diagrama de estados correspondente à Máquina de Recompensa adotada neste trabalho.
+No diagrama, cada nó representa um estado lógico da RM e cada transição é rotulada por
+uma tupla composta pela proposição lógica avaliada no ambiente e pela configuração de
+pesos da função de recompensa ativada naquele estado. Essa representação gráfica
+evidencia de forma compacta a relação entre condições ambientais, estados da RM e
+a modulação dinâmica da função de recompensa.
+
+%%Inserir um texto explicativo sobre a figura da máquina de recompensa
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/rm_isaacsim.pdf}
+    \caption{Máquina de Recompensa (RM) utilizada no ambiente IsaacSim. 
+    Cada transição é rotulada por uma tupla composta pela proposição lógica
+    avaliada no ambiente e pela configuração de pesos ativada na função de recompensa.}
+    \label{fig:rm_machine}
+\end{figure}

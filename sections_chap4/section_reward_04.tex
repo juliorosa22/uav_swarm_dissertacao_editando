@@ -97,82 +97,86 @@ w_{\mathrm{align}}^{\big(u_i(t)\big)} E_i^{\mathrm{align}}(t),
 \]
 onde os pesos são selecionados dinamicamente em função do estado corrente da Máquina de Recompensa.
 
-A Figura~\ref{fig:rm_diagram} ilustra de forma resumida os estados da Máquina de Recompensa e as principais condições de transição entre eles. A definição formal das proposições lógicas, da função de transição da RM e da associação completa entre estados e pesos é apresentada no Apêndice~\ref{apendice:rm_isaacsim}. A formulação matemática detalhada da função de recompensa adotada no ambiente IsaacSim, incluindo todos os termos e seus intervalos de valores, é apresentada no Apêndice~\ref{apendice:reward_isaacsim}.
+A dinâmica de funcionamento da Máquina de Recompensa é apresentada de forma resumida ao longo
+desta seção. A definição formal completa da RM, incluindo o diagrama de estados, as proposições
+lógicas e a função de transição, é apresentada no Apêndice~\ref{apendice:rm_isaacsim}
+(Figura~\ref{fig:rm_machine}).
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-    state/.style={
-        draw,
-        circle,
-        thick,
-        minimum size=1.6cm,
-        inner sep=2pt
-    },
-    arrow/.style={->, thick},
-    loop/.style={->, thick, looseness=6},
-    init/.style={->, thick},
-    every node/.style={font=\small}
-]
 
-% States
-\node[state] (H) {H};
-\node[state, right=5cm of H] (S) {S};
-\node[state, below=3.5cm of S] (C) {C};
-\node[state, left=5cm of C] (O) {O};
+% \begin{figure}[H]
+% \centering
+% \begin{tikzpicture}[
+%     state/.style={
+%         draw,
+%         circle,
+%         thick,
+%         minimum size=1.6cm,
+%         inner sep=2pt
+%     },
+%     arrow/.style={->, thick},
+%     loop/.style={->, thick, looseness=6},
+%     init/.style={->, thick},
+%     every node/.style={font=\small}
+% ]
 
-% Initial arrow
-\node[left=1.8cm of H] (init) {};
-\draw[init] (init) -- node[above] {init} (H);
+% % States
+% \node[state] (H) {H};
+% \node[state, right=5cm of H] (S) {S};
+% \node[state, below=3.5cm of S] (C) {C};
+% \node[state, left=5cm of C] (O) {O};
 
-% Self-loops (state persistence)
-\draw[loop] (H) edge[above] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{hover}}\rangle$} (H);
-\draw[loop] (S) edge[above] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{single}}\rangle$} (S);
-\draw[loop] (C) edge[below] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{coop}}\rangle$} (C);
-\draw[loop] (O) edge[below]  node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{obstacle}}\rangle$} (O);
+% % Initial arrow
+% \node[left=1.8cm of H] (init) {};
+% \draw[init] (init) -- node[above] {init} (H);
 
-% Transitions
-\draw[arrow] (H) -- 
-node[above, yshift=2pt] {\scriptsize $\langle \mathcal{P}_1,\mathbf{w}_{\text{single}}\rangle$} 
-(S);
+% % Self-loops (state persistence)
+% \draw[loop] (H) edge[above] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{hover}}\rangle$} (H);
+% \draw[loop] (S) edge[above] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{single}}\rangle$} (S);
+% \draw[loop] (C) edge[below] node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{coop}}\rangle$} (C);
+% \draw[loop] (O) edge[below]  node {\scriptsize $\langle \cdot,\mathbf{w}_{\text{obstacle}}\rangle$} (O);
 
-\draw[arrow] (S) -- 
-node[right, xshift=2pt] {\scriptsize $\langle \mathcal{P}_3,\mathbf{w}_{\text{coop}}\rangle$} 
-(C);
+% % Transitions
+% \draw[arrow] (H) -- 
+% node[above, yshift=2pt] {\scriptsize $\langle \mathcal{P}_1,\mathbf{w}_{\text{single}}\rangle$} 
+% (S);
 
-\draw[arrow] (C) -- 
-node[left, xshift=-2pt] {\scriptsize $\langle \neg\mathcal{P}_3,\mathbf{w}_{\text{single}}\rangle$} 
-(S);
+% \draw[arrow] (S) -- 
+% node[right, xshift=2pt] {\scriptsize $\langle \mathcal{P}_3,\mathbf{w}_{\text{coop}}\rangle$} 
+% (C);
 
-\draw[arrow] (S) to[bend left=12] 
-node[above right] {\scriptsize $\langle \neg\mathcal{P}_2,\mathbf{w}_{\text{obstacle}}\rangle$} 
-(O);
+% \draw[arrow] (C) -- 
+% node[left, xshift=-2pt] {\scriptsize $\langle \neg\mathcal{P}_3,\mathbf{w}_{\text{single}}\rangle$} 
+% (S);
 
-\draw[arrow] (C) to[bend right=12] 
-node[below right] {\scriptsize $\langle \neg\mathcal{P}_2,\mathbf{w}_{\text{obstacle}}\rangle$} 
-(O);
+% \draw[arrow] (S) to[bend left=12] 
+% node[above right] {\scriptsize $\langle \neg\mathcal{P}_2,\mathbf{w}_{\text{obstacle}}\rangle$} 
+% (O);
 
-\draw[arrow] (O) -- 
-node[left, xshift=-2pt] {\scriptsize $\langle \mathcal{P}_2,\mathbf{w}_{\text{single}}\rangle$} 
-(S);
+% \draw[arrow] (C) to[bend right=12] 
+% node[below right] {\scriptsize $\langle \neg\mathcal{P}_2,\mathbf{w}_{\text{obstacle}}\rangle$} 
+% (O);
 
-% Hover override (highest priority)
-\draw[arrow, bend left=18] (S) to 
-node[above] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
-(H);
+% \draw[arrow] (O) -- 
+% node[left, xshift=-2pt] {\scriptsize $\langle \mathcal{P}_2,\mathbf{w}_{\text{single}}\rangle$} 
+% (S);
 
-\draw[arrow, bend right=18] (C) to 
-node[below] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
-(H);
+% % Hover override (highest priority)
+% \draw[arrow, bend left=18] (S) to 
+% node[above] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
+% (H);
 
-\draw[arrow, bend left=30] (O) to 
-node[left] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
-(H);
+% \draw[arrow, bend right=18] (C) to 
+% node[below] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
+% (H);
 
-\end{tikzpicture}
-\caption{Diagrama da Máquina de Recompensa (RM) utilizada no ambiente IsaacSim. Cada transição é rotulada por uma tupla composta pela proposição lógica avaliada no ambiente e pela configuração de pesos ativada na função de recompensa.}
-\label{fig:rm_diagram}
-\end{figure}
+% \draw[arrow, bend left=30] (O) to 
+% node[left] {\scriptsize $\langle \neg\mathcal{P}_1,\mathbf{w}_{\text{hover}}\rangle$} 
+% (H);
+
+% \end{tikzpicture}
+% \caption{Diagrama da Máquina de Recompensa (RM) utilizada no ambiente IsaacSim. Cada transição é rotulada por uma tupla composta pela proposição lógica avaliada no ambiente e pela configuração de pesos ativada na função de recompensa.}
+% \label{fig:rm_diagram}
+% \end{figure}
 
 
 
