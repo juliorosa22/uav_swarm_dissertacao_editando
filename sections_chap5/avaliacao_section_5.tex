@@ -1,0 +1,35 @@
+\section{Métricas de Avaliação}
+\label{sec:metricas_avaliacao}
+
+Após o treinamento, cada política associada a um estágio curricular foi avaliada por meio da execução de 100 episódios independentes, sem atualização de parâmetros. O objetivo dessa avaliação é quantificar o desempenho das políticas em termos de sucesso da tarefa, segurança e coesão do enxame.
+
+As métricas apresentadas nesta seção correspondem à média dos valores observados ao longo dos episódios de teste, permitindo uma comparação consistente entre os diferentes estágios do aprendizado.
+
+\subsection{Protocolo de Avaliação}
+\label{subsec:protocolo_avaliacao}
+
+Para cada estágio do aprendizado curricular, a política treinada foi avaliada em 100 episódios completos no ambiente correspondente. As condições iniciais foram amostradas aleatoriamente dentro dos limites definidos para cada cenário, garantindo diversidade de situações durante os testes.
+
+Durante a execução dos episódios, não houve atualização dos parâmetros da política ou do crítico, caracterizando um regime de avaliação puramente inferencial.
+
+
+\subsection{Resultados Quantitativos}
+\label{subsec:resultados_quantitativos}
+
+A Tabela~\ref{tab:metricas_avaliacao} apresenta as métricas de desempenho obtidas para cada estágio do aprendizado curricular. As colunas correspondem aos estágios de treinamento, enquanto as linhas representam as métricas avaliadas.
+
+\begin{table}[H]
+\centering
+\caption{Métricas de avaliação das políticas treinadas em cada estágio curricular.}
+\label{tab:metricas_avaliacao}
+\begin{tabular}{lccccc}
+\hline
+\textbf{Métrica} & \textbf{Hover} & \textbf{P2P} & \textbf{Obs.} & \textbf{Form.} & \textbf{Form.+Obs.} \\
+\hline
+Taxa de sucesso (\%) &  &  &  &  &  \\
+Colisões médias &  &  &  &  &  \\
+Distância média interagentes &  &  &  &  &  \\
+Tempo médio até o objetivo &  &  &  &  &  \\
+\hline
+\end{tabular}
+\end{table}

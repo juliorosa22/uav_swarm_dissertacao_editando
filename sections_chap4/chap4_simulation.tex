@@ -13,7 +13,7 @@ Esta seção apresenta a modelagem formal do problema de navegação cooperativa
 
 %A utilização de ambientes de simulação fidedignos e escaláveis é um fator determinante no desenvolvimento e validação de algoritmos de aprendizado por reforço aplicados ao controle de enxames de veículos aéreos não tripulados. Neste trabalho, dois simuladores foram empregados ao longo das diferentes etapas de desenvolvimento: o AirSim e o IsaacSim. Cada um desses ambientes apresenta características específicas, tendo sido concebidos com finalidades distintas, o que impacta diretamente sua adequação a diferentes fases do processo experimental.
 
-O AirSim é um simulador de código aberto desenvolvido inicialmente pela Microsoft Research, apresentado por Shah et al.~\cite{shah2018airsim}, com o objetivo de apoiar pesquisas em veículos autônomos, incluindo carros e VANTs. Construído sobre o motor gráfico Unreal Engine, o AirSim oferece ambientes tridimensionais de alta fidelidade visual, suporte a sensores realistas — como câmeras RGB, profundidade, sensores de distância e IMU — e integração direta com controladores de voo amplamente utilizados, como ArduPilot e PX4. Essa arquitetura permite que o simulador funcione como uma camada de abstração entre algoritmos de alto nível e controladores de baixo nível, aproximando o comportamento do sistema simulado daquele observado em operações reais.
+O AirSim é um simulador de código aberto desenvolvido inicialmente pela Microsoft Research, apresentado por \citeonline{shah2018airsim}, com o objetivo de apoiar pesquisas em veículos autônomos, incluindo carros e VANTs. Construído sobre o motor gráfico Unreal Engine, o AirSim oferece ambientes tridimensionais de alta fidelidade visual, suporte a sensores realistas — como câmeras RGB, profundidade, sensores de distância e IMU — e integração direta com controladores de voo amplamente utilizados, como ArduPilot e PX4. Essa arquitetura permite que o simulador funcione como uma camada de abstração entre algoritmos de alto nível e controladores de baixo nível, aproximando o comportamento do sistema simulado daquele observado em operações reais.
 
 Entre os principais pontos fortes do AirSim destacam-se sua especialização em aplicações com VANTs, a facilidade de configuração de sensores e cenários personalizados, bem como a possibilidade de realizar testes de voo autônomo baseados em scripts e missões pré-programadas. Por outro lado, o simulador apresenta limitações relacionadas ao desempenho computacional e à escalabilidade, especialmente em cenários que envolvem múltiplos agentes e demandam a execução paralela de diversos ambientes, o que pode comprometer a eficiência do treinamento de algoritmos de aprendizado por reforço multiagente.
 
@@ -240,11 +240,19 @@ Cada componente do vetor de observação possui significado físico e dimensiona
 
 Durante o treinamento centralizado, o crítico tem acesso a uma observação global contendo informações completas do enxame, incluindo estados e relações espaciais entre todos os agentes. Essas informações não estão disponíveis durante a execução descentralizada das políticas, caracterizando explicitamente um problema sob observabilidade parcial, conforme o paradigma de \textit{Centralized Training with Decentralized Execution} (CTDE).
 
-O espaço de ações no AirSim é contínuo e definido, para cada agente, como:
+O espaço de ações no ambiente AirSim é contínuo e definido, para cada agente $i$ no instante $t$, como:
 \[
-\mathbf{a}_i^t \in [-1,1]^4,
+\mathbf{a}_i^t =
+\begin{bmatrix}
+v_{x,i}^t &
+v_{y,i}^t &
+v_{z,i}^t &
+\dot{\psi}_i^t
+\end{bmatrix}
+\in [-1,1]^4,
 \]
-onde os elementos do vetor de ação correspondem a comandos normalizados de movimento linear e taxa de guinada. Esses comandos são posteriormente interpretados pelos controladores de voo embarcados do simulador, como PX4 ou ArduPilot, de modo que a política aprende um controle de alto nível, enquanto a estabilização do voo é delegada ao controlador de baixo nível.
+onde $v_{x,i}^t$, $v_{y,i}^t$ e $v_{z,i}^t$ representam comandos normalizados de velocidade linear ao longo dos eixos cartesianos, e $\dot{\psi}_i^t$ corresponde ao comando normalizado de taxa de guinada (\textit{yaw rate}). Esses comandos são interpretados por um controlador de voo embarcado, como PX4 ou ArduPilot, responsável pela estabilização e pelo controle dinâmico do VANT. Dessa forma, a política de aprendizado por reforço atua em um nível de abstração elevado, focando em decisões de navegação e deslocamento, enquanto o controle de baixo nível é delegado ao controlador interno do simulador.
+
 
 \subsubsection{Instanciação no Ambiente IsaacSim}
 
@@ -301,12 +309,78 @@ Durante o treinamento centralizado, o crítico tem acesso ao estado global do si
 \]
 Esse estado global não está disponível durante a execução descentralizada das políticas, caracterizando explicitamente um problema sob observabilidade parcial e mantendo consistência com o paradigma de \textit{Centralized Training with Decentralized Execution} (CTDE). Ressalta-se que informações relacionadas ao centroide do enxame são utilizadas apenas em condições de término dos episódios e não fazem parte do espaço de observação dos agentes.
 
-O espaço de ações no IsaacSim também é contínuo e definido, para cada agente, como:
+
+No ambiente IsaacSim, o espaço de ações também é contínuo e definido, para cada agente $i$ no instante $t$, como:
 \[
-\mathbf{a}_i^t \in [-1,1]^4,
+\mathbf{a}_i^t =
+\begin{bmatrix}
+T_i^t &
+M_{x,i}^t &
+M_{y,i}^t &
+M_{z,i}^t
+\end{bmatrix}
+\in [-1,1]^4,
 \]
-onde os elementos do vetor de ação correspondem a comandos normalizados de empuxo e momentos aplicados diretamente ao modelo dinâmico do VANT. Diferentemente do ambiente AirSim, não há uma camada intermediária de controle baseada em controladores de voo embarcados, o que implica que a política aprendida é responsável por aspectos de controle mais próximos do nível físico, incluindo a estabilização do voo.
+onde $T_i^t$ representa o comando normalizado de empuxo total aplicado ao VANT, e $M_{x,i}^t$, $M_{y,i}^t$ e $M_{z,i}^t$ correspondem aos momentos normalizados aplicados em torno dos eixos de rolagem, arfagem e guinada, respectivamente. Esses comandos são aplicados diretamente ao modelo dinâmico do VANT no simulador, não havendo uma camada intermediária de controle baseada em controladores de voo embarcados. Consequentemente, a política aprendida é responsável não apenas pelo comportamento de navegação, mas também pela estabilização e pelo controle dinâmico do agente.
+
+
+
 
 \subsubsection{Síntese Comparativa}
 
-Em síntese, enquanto o AirSim favorece uma modelagem baseada em observações multimodais e ações de alto nível, suportadas por controladores de voo embarcados, o IsaacSim adota uma representação mais compacta do espaço de observação e ações aplicadas diretamente à dinâmica do agente. Essas diferenças motivaram escolhas distintas de arquiteturas neurais e estratégias de treinamento, conforme discutido nas seções subsequentes, sem comprometer a coerência conceitual da tarefa de navegação cooperativa em formação.
+A Figura~\ref{fig:action_space_comparison} apresenta uma visão comparativa dos fluxos de controle e dos níveis de abstração associados aos espaços de ações adotados nos ambientes AirSim e IsaacSim. Observa-se que, embora ambos utilizem espaços de ações contínuos de mesma dimensionalidade, o significado físico dos comandos e a responsabilidade atribuída à política de aprendizado diferem substancialmente entre os simuladores.
+
+Em particular, o AirSim favorece uma modelagem baseada em observações multimodais e ações de alto nível, suportadas por controladores de voo embarcados, enquanto o IsaacSim adota uma representação mais compacta do espaço de observação e ações aplicadas diretamente à dinâmica do agente. Essas diferenças motivaram escolhas distintas de arquiteturas neurais e estratégias de treinamento, conforme discutido nas seções subsequentes, sem comprometer a coerência conceitual da tarefa de navegação cooperativa em formação.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.3cm,
+    every node/.style={
+        draw,
+        align=center,
+        minimum width=3.0cm,
+        minimum height=0.8cm,
+        font=\footnotesize
+    },
+    arrow/.style={->, thin}
+]
+
+% ======================
+% AirSim column
+% ======================
+\node[draw=none, font=\footnotesize\bfseries] (airsim_title) {AirSim};
+\node (airsim_policy) [below of=airsim_title] {Política RL};
+\node (airsim_action) [below of=airsim_policy] {$[v_x,\; v_y,\; v_z,\; \dot{\psi}]$};
+\node (airsim_ctrl) [below of=airsim_action] {Controlador de Voo};
+\node (airsim_dyn) [below of=airsim_ctrl] {Dinâmica};
+\node (airsim_env) [below of=airsim_dyn] {Ambiente};
+
+\draw[arrow] (airsim_policy) -- (airsim_action);
+\draw[arrow] (airsim_action) -- (airsim_ctrl);
+\draw[arrow] (airsim_ctrl) -- (airsim_dyn);
+\draw[arrow] (airsim_dyn) -- (airsim_env);
+
+% ======================
+% IsaacSim column
+% ======================
+\node[draw=none, font=\footnotesize\bfseries, right=4.6cm of airsim_title] (isaac_title) {IsaacSim};
+\node (isaac_policy) [below of=isaac_title] {Política RL};
+\node (isaac_action) [below of=isaac_policy] {$[T,\; M_x,\; M_y,\; M_z]$};
+\node (isaac_dyn) [below of=isaac_action] {Modelo Dinâmico};
+\node (isaac_env) [below of=isaac_dyn] {Ambiente};
+
+\draw[arrow] (isaac_policy) -- (isaac_action);
+\draw[arrow] (isaac_action) -- (isaac_dyn);
+\draw[arrow] (isaac_dyn) -- (isaac_env);
+
+% ======================
+% Abstraction labels
+% ======================
+\node[draw=none, font=\scriptsize, left=0.2cm of airsim_ctrl] {Alto nível};
+\node[draw=none, font=\scriptsize, right=0.2cm of isaac_action] {Baixo nível};
+
+\end{tikzpicture}
+\caption{Comparação dos fluxos de controle e dos níveis de abstração do espaço de ações nos ambientes AirSim e IsaacSim.}
+\label{fig:action_space_comparison}
+\end{figure}

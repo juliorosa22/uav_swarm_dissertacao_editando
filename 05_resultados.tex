@@ -1,16 +1,13 @@
 \chapter{Resultados}
+(EM desenvolvimento)
+\label{chap:resultados}
 
-% Guideline para a escrita do capitulo
-%% Preambulo do capítulo de resultados
+Este capítulo apresenta os resultados experimentais obtidos com o treinamento e a avaliação das políticas multiagentes desenvolvidas no ambiente IsaacLab. Os experimentos foram conduzidos com foco na análise da estabilidade do treinamento, da eficiência amostral e do desempenho das políticas em diferentes estágios do aprendizado curricular, em conjunto com o uso de Máquinas de Recompensa.
 
-%--- Secao sobre as definicoes das metricas
-%secao apresentando as metricas coletadas no treinamento e teste
-%Metricas durante o treinamento: reward, loss, entropia, etc
-%Metricas durante os testes: numero de colisoes (obstaculos e entre agentes), distancia percorrida, taxa de sucesso em cada tarefa (cenario hover, single, coop, obstacle), tempo para completar a tarefa, etc
+Inicialmente, são analisadas as métricas de treinamento do algoritmo MAPPO, incluindo as funções de custo da política, do crítico e o comportamento da entropia ao longo do aprendizado. Em seguida, são apresentados os resultados de avaliação das políticas treinadas, considerando métricas quantitativas obtidas a partir da execução de episódios de teste em cenários correspondentes a cada estágio curricular.
 
+Todos os resultados apresentados neste capítulo referem-se exclusivamente ao ambiente IsaacLab, uma vez que os experimentos conduzidos no AirSim foram utilizados apenas como estudo preliminar e motivação para a migração da stack de simulação, conforme discutido nos capítulos anteriores.
 
-%--- Comparacao dos resultados com a literatura
-%secao comparando os resultados obtidos com os resultados da literatura - verificar quais trabalhos da literatura podem ser usados. 
-
-%--- Analise dos resultados
-%secao analisando os resultados obtidos - discutir o que os resultados indicam sobre o
+\input{sections_chap5/treinamento_section_5.tex}
+\input{sections_chap5/avaliacao_section_5.tex}
+\input{sections_chap5/discussao_section_5.tex}

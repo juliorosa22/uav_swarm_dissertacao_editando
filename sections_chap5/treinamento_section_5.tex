@@ -1,0 +1,93 @@
+\section{Métricas de Treinamento}
+\label{sec:metricas_treinamento}
+
+Esta seção apresenta a análise das métricas de treinamento do algoritmo MAPPO ao longo do aprendizado curricular no ambiente IsaacLab. O objetivo é avaliar a estabilidade do processo de otimização, a qualidade da estimativa da função de valor e o comportamento exploratório das políticas aprendidas em cada estágio.
+
+As métricas analisadas incluem a função de custo da política (\textit{policy loss}), a função de custo do crítico (\textit{value loss}) e a entropia da política. Todas as métricas são apresentadas separadamente por agente, de modo a evidenciar possíveis assimetrias no aprendizado dentro do enxame.
+
+\subsection{Policy Loss}
+\label{subsec:policy_loss}
+
+A \textit{policy loss} reflete a qualidade das atualizações da política sob o critério de otimização do PPO. Valores estáveis e com tendência de convergência indicam gradientes consistentes e aprendizado estável.
+
+A Figura~\ref{fig:policy_loss} apresenta a evolução da \textit{policy loss} para cada agente ao longo do treinamento, considerando os diferentes estágios do aprendizado curricular.
+
+\begin{figure}[ht]
+    \centering
+
+    % ---------- Linha 1 ----------
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/normalized_stage4_value_loss.pdf}
+        \caption{Estágio 1}
+        \label{fig:policy_loss_stage1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/normalized_stage4_value_loss.pdf}
+        \caption{Estágio 2}
+        \label{fig:policy_loss_stage2}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    % ---------- Linha 2 ----------
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/stage3_training_policy_loss.pdf}
+        \caption{Estágio 3}
+        \label{fig:policy_loss_stage3}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[t]{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/stage4_training_policy_loss.pdf}
+        \caption{Estágio 4}
+        \label{fig:policy_loss_stage4}
+    \end{subfigure}
+
+    \vspace{0.5em}
+
+    % ---------- Linha 3 (Stage 5 em destaque) ----------
+    \begin{subfigure}[t]{0.98\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{plots/stage5_training_policy_loss.pdf}
+        \caption{Estágio 5}
+        \label{fig:policy_loss_stage5}
+    \end{subfigure}
+
+    \caption{Evolução da \textit{policy loss} ao longo do treinamento para os diferentes estágios do currículo.
+    Cada subfigura apresenta a média da métrica agregada entre os agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.
+    A mesma escala vertical é utilizada em todos os estágios para fins de comparação.}
+    \label{fig:policy_loss_all_stages}
+\end{figure}
+
+
+%%inserir o quadro com os plots de policy loss para cada estágio curricular
+
+
+% Inserir figura aqui
+
+
+\subsection{Value Loss}
+\label{subsec:value_loss}
+
+A \textit{value loss} avalia o erro de aproximação da função de valor global estimada pelo crítico centralizado. Uma redução progressiva dessa métrica indica que o crítico é capaz de fornecer estimativas consistentes dos retornos esperados, o que é fundamental para a estabilidade do MAPPO.
+
+A Figura~\ref{fig:value_loss} apresenta o comportamento da \textit{value loss} ao longo do treinamento para cada agente.
+
+%TODO - adicionar figura com value loss para cada estágio curricular
+
+
+
+
+\begin{figure}[ht]
+    \centering
+    % \includegraphics[width=0.8\linewidth]{fig_stage4_value_loss.pdf}
+    \caption{Evolução da \textit{value loss} durante o treinamento do Estágio~4. A curva representa a média entre agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.}
+    \label{fig:stage4_value_loss}
+\end{figure}
+
+\subsection{Recompensa Média Global}
+%%TODO - adicionar seção de recompensa média global explicacao geral e comportamento esperado aumento da recompensa conforme o treinamento avança

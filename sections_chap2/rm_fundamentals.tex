@@ -1,0 +1,159 @@
+
+    % \section{Máquinas de Recompensa}
+
+    % \subsection{Conceitos sobre RMs}
+
+    % As \textit{Reward Machines} (RMs) consistem em um formalismo baseado em autômatos finitos que visa estruturar e modularizar funções de recompensa em problemas de aprendizado por reforço (RL). Tradicionalmente, as funções de recompensa são tratadas como "caixas-pretas", sendo acessadas pelo agente apenas para consulta pontual de valores. As RMs propõem uma abordagem diferente, em que a estrutura interna da função de recompensa é explicitada ao agente, permitindo que ele utilize tal conhecimento para acelerar e modular o processo de aprendizado \cite{rm_marl}.
+
+    % \begin{definition}[Máquina de Recompensas]
+    % Uma \textbf{Reward Machine} (RM) é uma tupla $M = \langle U, u_0, F, \delta_u, \delta_r, P \rangle$, onde:
+    % \begin{itemize}
+    %     \item $U$ é um conjunto finito de estados da máquina de recompensa;
+    %     \item $u_0 \in U$ é o estado inicial da RM;
+    %     \item $F \subseteq U$ é o conjunto de estados terminais;
+    %     \item $P$ é um conjunto de proposições que descrevem eventos observáveis no ambiente;
+    %     \item $\delta_u : U \times 2^{P} \rightarrow U \cup F$ é a função de transição da RM, que define a mudança de estados da RM com base nos eventos observados;
+    %     \item $\delta_r : U \times 2^{P} \rightarrow \mathbb{R}$ é a função de recompensa que associa uma recompensa real a cada transição da RM.
+    % \end{itemize}
+    % \end{definition}
+
+
+    % Formalmente, uma RM é composta por um conjunto de estados $U$, uma função de transição $\delta_u$, e uma função de recompensa $\delta_r$. O agente, ao interagir com o ambiente, transita não apenas pelos estados do ambiente, mas também pelos estados da RM, de acordo com eventos de alto nível observados no ambiente e definidos via uma função de rotulagem $L$. Cada transição na RM pode especificar uma recompensa distinta, tornando possível descrever recompensas não-Markovianas ou recompensas que dependem de propriedades temporais do histórico do agente.
+
+
+
+
+    % A principal vantagem das RMs está na capacidade de decompor missões complexas em \textit{subtarefas} modulares, facilitando a especificação de propriedades temporais como sequências de eventos, loops e condicionais. Por exemplo, em um cenário de entrega de pacotes com UAVs, uma RM pode especificar que primeiro o agente deve "localizar o alvo" e, em seguida, "entregar o pacote" em outra localização, premiando adequadamente cada etapa.
+
+    % %Além de aumentar a expressividade da função de recompensa, as RMs possibilitam a aplicação de técnicas de \textit{shaping} de recompensas e decomposição hierárquica de políticas. Técnicas como Q-learning para RMs (QRM) ou abordagens de \textit{counterfactual reasoning} (CRM) se beneficiam diretamente da estrutura exposta pelas RMs, resultando em melhor eficiência amostral e políticas mais robustas em ambientes parcialmente observáveis ou com recompensas esparsas.
+
+    % Por fim, as RMs possuem o mesmo poder expressivo de linguagens regulares, sendo capazes de capturar propriedades temporais similares às especificadas por lógicas como LTL (\textit{Linear Temporal Logic}), oferecendo uma alternativa prática e compacta para a especificação de tarefas em RL.
+
+    % \begin{definition}[MDP com Reward Machine (MDPRM)]
+    % Um \textbf{MDP com Reward Machine} é uma tupla estendida $T = \langle S, A, p, \gamma, P, L, M \rangle$, onde:
+    % \begin{itemize}
+    %     \item $S$ é o conjunto finito de estados do ambiente;
+    %     \item $A$ é o conjunto finito de ações disponíveis ao agente;
+    %     \item $p: S \times A \times S \rightarrow [0,1]$ é a função de transição estocástica do ambiente;
+    %     \item $\gamma \in (0,1]$ é o fator de desconto;
+    %     \item $P$ é o conjunto de proposições de eventos (compartilhado com a RM);
+    %     \item $L : S \times A \times S \rightarrow 2^{P}$ é a função de rotulagem, que associa a cada transição no ambiente um conjunto de proposições verdadeiras;
+    %     \item $M = \langle U, u_0, F, \delta_u, \delta_r, P \rangle$ é a \textit{Reward Machine} associada.
+    % \end{itemize}
+    % \end{definition}
+
+    % \begin{figure}[H]
+    %     \centering
+    %     \begin{tikzpicture}[->, >=stealth', node distance=3cm, auto, thick, align=center]
+    %         % Ambiente
+    %         \node[draw, rectangle, rounded corners, minimum width=3.5cm, minimum height=1cm] (env) {Ambiente (MDP) \\ $s_t \xrightarrow{a_t} s_{t+1}$};
+
+    %         % Label function
+    %         \node[draw, ellipse, right of=env, node distance=4.5cm] (label) {Rotulagem \\ $\sigma_t = L(s_t, a_t, s_{t+1})$};
+
+    %         % Reward Machine
+    %         \node[draw, rectangle, rounded corners, right of=label, node distance=4.5cm, minimum width=3.5cm, minimum height=1cm] (rm) {Reward Machine \\ $u_t \xrightarrow{\sigma_t} u_{t+1}$};
+
+    %         % Reward output
+    %         \node[draw, rectangle, below of=rm, node distance=2.5cm, minimum width=3cm] (reward) {Recompensa $r_t$};
+
+    %         % Arrows
+    %         \path (env) edge node[above] {} (label);
+    %         \path (label) edge node[above] {} (rm);
+    %         \path (rm) edge node[right] {} (reward);
+
+    %         % Feedback loop to agent (optional)
+    %     % \draw[->, dashed] (reward.west) to[out=180,in=-90] node[left] {Reforço para o agente} ([yshift=-1cm]env.south);
+
+    %     \end{tikzpicture}
+    %     \caption{Fluxo de interação entre o ambiente, a função de rotulagem e a Reward Machine.}
+    %     \fonte{Adapatado de \cite{rm_marl}}
+    %     \label{fig:mdprm}
+    % \end{figure}
+    % A figura \ref{fig:mdprm} ilustra como a função de rotulagem $L$ realiza a interface entre a transição dos estados do ambiente com a transição de estados da máquina de recompensa. O agente ao realizar a ação $a_t$ muda o estado do ambiente de $s_t $ para $s_{t+1}$. A função rotulagem $L$ transforma a 3-tupla $(s_t,a_t,s_{t+1})$ em uma transição $\sigma_t$ da máquina de recompensa alterando seu estado de $u_t$ para $u_{t+1}$, fornecendo a recompensa $r_t$ para o agente.
+    % \subsection{Exemplo RM: Grid World}
+    % \begin{figure}[!h]
+    %     \centering
+    %     \includegraphics[scale=0.9]{fig/RM_grid_world.png}
+    %     \caption{Exemplo de RM para o ambiente GridWorld.}
+    %     \fonte{Extraído de \cite{rm_marl}}
+    %     \label{fig:rm_grid}
+    % \end{figure}
+    % A figura \ref{fig:rm_grid} mostra um exemplo de máquina de recompensas para o ambiente \textit{GridWorld}. Neste ambiente o agente consegue se movimentar nas direções cardinais, seu objetivo consiste em obter o café e o jornal acessando as posições em que os itens se encontram e entrega-las até a posição do escritório $o$. Este é um exemplo simples no qual há um requisito temporal para as sequências das atividades que o agente deve completar antes de chegar até o seu destino final. Os rótulos sobre as setas de transições da máquina de recompensa na figura a direita indicam em forma de 2-tupla respectivamente a função de rotulagem e o retorno esperado pelo agente. Por exemplo o sob o estado $u_1$ o rótulo $<\neg o \land \neg*,0>$ indica que quando o agente movimenta-se para uma posição que não é o escritório $(o)$ e também não possui um obstáculo $(*)$ ele recebe a recompensa escalar 0 e mantém a máquina de estados no estado $u_1$.
+
+
+    \section{Máquinas de Recompensa}
+
+\subsection{Conceitos sobre Reward Machines}
+
+As \textit{Reward Machines} (RMs) constituem um formalismo baseado em autômatos finitos que tem como objetivo estruturar e modularizar funções de recompensa em problemas de aprendizado por reforço. Em abordagens tradicionais de RL, a função de recompensa é frequentemente tratada como uma entidade implícita, acessada apenas como um sinal escalar fornecido pelo ambiente. As RMs propõem uma alternativa conceitual, na qual a estrutura interna da recompensa é explicitada por meio de estados e transições, permitindo a decomposição de tarefas complexas em estágios bem definidos e facilitando o aprendizado em cenários com recompensas esparsas ou dependentes do histórico do agente \cite{rm_marl}.
+
+\begin{definition}[Máquina de Recompensa]
+Uma \textbf{Reward Machine} (RM) é definida como uma tupla
+$M = \langle U, u_0, F, \delta_u, \delta_r, P \rangle$, em que:
+\begin{itemize}
+    \item $U$ é um conjunto finito de estados da máquina de recompensa;
+    \item $u_0 \in U$ é o estado inicial da RM;
+    \item $F \subseteq U$ é o conjunto de estados terminais;
+    \item $P$ é um conjunto de proposições que descrevem eventos observáveis no ambiente;
+    \item $\delta_u : U \times 2^{P} \rightarrow U \cup F$ é a função de transição de estados da RM;
+    \item $\delta_r : U \times 2^{P} \rightarrow \mathbb{R}$ é a função de recompensa associada às transições da RM.
+\end{itemize}
+\end{definition}
+
+De forma intuitiva, o agente, ao interagir com o ambiente, passa a evoluir simultaneamente em dois espaços de estados: o espaço do ambiente e o espaço da máquina de recompensas. As transições na RM são acionadas por eventos de alto nível observados durante a interação do agente com o ambiente, os quais são definidos por meio de uma função de rotulagem. Cada transição da RM pode gerar uma recompensa distinta, permitindo a especificação de recompensas não-Markovianas e a incorporação de propriedades temporais, como sequências de eventos, condicionais e ciclos.
+
+Uma das principais vantagens das RMs é a capacidade de decompor missões complexas em subtarefas modulares, tornando explícita a progressão da tarefa ao longo do tempo. Por exemplo, em um cenário de entrega de pacotes com VANTs, a missão pode ser estruturada em estágios como \emph{localizar o alvo}, \emph{deslocar-se até a região de entrega} e \emph{finalizar a missão}, com recompensas associadas a cada etapa. Essa decomposição contribui para reduzir a esparsidade do sinal de recompensa e melhorar a eficiência amostral do aprendizado.
+
+Do ponto de vista expressivo, as Reward Machines possuem o mesmo poder das linguagens regulares, sendo capazes de representar propriedades temporais semelhantes às especificadas por lógicas temporais lineares (LTL). Dessa forma, as RMs oferecem uma alternativa prática e compacta para a especificação de tarefas temporais em aprendizado por reforço, sem a necessidade de incorporar diretamente formalismos lógicos mais complexos ao processo de aprendizado.
+
+\begin{definition}[MDP com Reward Machine (MDPRM)]
+Um \textbf{MDP com Reward Machine} (MDPRM) é definido como uma tupla estendida
+$T = \langle S, A, p, \gamma, P, L, M \rangle$, onde:
+\begin{itemize}
+    \item $S$ é o conjunto finito de estados do ambiente;
+    \item $A$ é o conjunto finito de ações disponíveis ao agente;
+    \item $p: S \times A \times S \rightarrow [0,1]$ é a função de transição estocástica do ambiente;
+    \item $\gamma \in (0,1]$ é o fator de desconto;
+    \item $P$ é o conjunto de proposições de eventos;
+    \item $L : S \times A \times S \rightarrow 2^{P}$ é a função de rotulagem, que associa a cada transição do ambiente um conjunto de proposições verdadeiras;
+    \item $M = \langle U, u_0, F, \delta_u, \delta_r, P \rangle$ é a Reward Machine associada.
+\end{itemize}
+\end{definition}
+
+A Figura~\ref{fig:mdprm} ilustra o fluxo de interação entre o ambiente, a função de rotulagem e a Reward Machine. Ao executar uma ação $a_t$, o agente provoca uma transição do estado do ambiente de $s_t$ para $s_{t+1}$. Essa transição é então mapeada pela função de rotulagem $L$ para um conjunto de proposições $\sigma_t$, que determina a transição correspondente na RM, alterando seu estado de $u_t$ para $u_{t+1}$ e produzindo a recompensa $r_t$ fornecida ao agente.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[->, >=stealth', node distance=3cm, auto, thick, align=center]
+        \node[draw, rectangle, rounded corners, minimum width=3.5cm, minimum height=1cm] (env) {Ambiente (MDP) \\ $s_t \xrightarrow{a_t} s_{t+1}$};
+        \node[draw, ellipse, right of=env, node distance=4.5cm] (label) {Rotulagem \\ $\sigma_t = L(s_t, a_t, s_{t+1})$};
+        \node[draw, rectangle, rounded corners, right of=label, node distance=4.5cm, minimum width=3.5cm, minimum height=1cm] (rm) {Reward Machine \\ $u_t \xrightarrow{\sigma_t} u_{t+1}$};
+        \node[draw, rectangle, below of=rm, node distance=2.5cm, minimum width=3cm] (reward) {Recompensa $r_t$};
+
+        \path (env) edge (label);
+        \path (label) edge (rm);
+        \path (rm) edge (reward);
+    \end{tikzpicture}
+    \caption{Fluxo de interação entre o ambiente, a função de rotulagem e a Reward Machine.}
+    \fonte{Adaptado de \cite{rm_marl}.}
+    \label{fig:mdprm}
+\end{figure}
+
+Embora exemplos introdutórios de Reward Machines sejam frequentemente apresentados em ambientes discretos, o formalismo é independente da natureza do espaço de estados e ações. Em particular, as proposições podem ser definidas como funções de variáveis contínuas do ambiente, tais como distâncias, regiões geométricas ou limiares físicos, permitindo a aplicação direta das RMs em tarefas com controle contínuo. Nesse contexto, a RM atua como uma camada simbólica de progresso da tarefa, enquanto a política do agente permanece contínua.
+
+No presente trabalho, essa generalidade é explorada na modelagem de tarefas cooperativas de um enxame de VANTs com ações contínuas, em que as proposições da Reward Machine são definidas a partir de métricas contínuas do ambiente, como distâncias relativas, colisões e erros de formação. A especificação completa da Reward Machine adotada, incluindo seus estados, proposições e transições, é apresentada no Apêndice~\ref{apendice:rm_isaacsim}.
+
+\subsection{Exemplo Intuitivo: Grid World}
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.9]{fig/RM_grid_world.png}
+    \caption{Exemplo de Reward Machine para o ambiente GridWorld.}
+    \fonte{Extraído de \cite{rm_marl}.}
+    \label{fig:rm_grid}
+\end{figure}
+
+A Figura~\ref{fig:rm_grid} apresenta um exemplo clássico de Reward Machine aplicada ao ambiente \textit{GridWorld}. Nesse cenário, o agente pode se movimentar nas direções cardinais, devendo coletar determinados objetos (por exemplo, café e jornal) antes de alcançar o destino final. A RM impõe uma estrutura temporal à tarefa, garantindo que as subtarefas sejam executadas em uma ordem específica. Os rótulos associados às transições indicam, por meio de pares formados por proposições e recompensas, as condições sob as quais a máquina muda de estado e o retorno fornecido ao agente.
+
+Esse exemplo ilustra de forma intuitiva como as Reward Machines permitem especificar dependências temporais e estruturar recompensas complexas. Embora apresentado em um domínio discreto, o mesmo princípio pode ser estendido a tarefas contínuas por meio da definição apropriada das proposições, como discutido anteriormente.

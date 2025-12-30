@@ -36,8 +36,20 @@
 \setlength{\absparsep}{18pt} % ajusta o espaçamento dos parágrafos do resumo
 \begin{resumo}
 \SingleSpacing
-Este trabalho propõe um novo framework que integra Máquinas de Recompensa (Reward Machines - RMs) com algoritmos de Aprendizado por Reforço Multiagente (Multi-Agent Reinforcement Learning - MARL) denomidado RM-MARL, visando ao desenvolvimento de agentes autônomos para enxames de Veículos Aéros Não Tripulados (VANTs).
-A utilização das Máquinas de Recompensa possibilita a exposição da estrutura interna da função recompensa durante o treinamento dos agentes, permitindo a convergência para políticas ótimas de maneira mais eficiente e reduzindo o tempo de treinamento. Ao permitir a especificação estruturada e hierárquica de uma função recompensa por meio das RMs, o framework proposto busca capacitar agentes descentralizados a aprenderem comportamentos complexos compostos por múltiplas subtarefas dentro de uma mesma missão. O resultado esperado é um framework reutilizável para o desenvolvimento de enxames autônomos voltados a missões complexas. 
+Este trabalho investiga a integração de Máquinas de Recompensa (Reward Machines – RMs)
+a algoritmos de Aprendizado por Reforço Multiagente (Multi-Agent Reinforcement Learning – MARL)
+aplicados ao controle descentralizado de enxames de Veículos Aéreos Não Tripulados (VANTs)
+em ambientes simulados.
+As Máquinas de Recompensa permitem explicitar a estrutura lógica da função de recompensa,
+possibilitando a decomposição de missões complexas em subtarefas e a modelagem mais
+expressiva dos objetivos da tarefa durante o processo de treinamento.
+A abordagem proposta analisa como a utilização de RMs influencia o comportamento,
+a coordenação e a estabilidade do aprendizado de agentes descentralizados em tarefas de
+navegação cooperativa com desvio de obstáculos.
+Os resultados obtidos em simulação indicam que a modelagem estruturada da recompensa por
+meio de RMs constitui uma alternativa promissora para a especificação de tarefas complexas
+em cenários multiagentes, contribuindo para o estudo de arquiteturas de controle
+descentralizado baseadas em aprendizado por reforço.
 %A arquitetura segue o paradigma de Treinamento Descentralizado e Execução Descentralizada (DTDE) e foi projetada para ser reutilizável em diferentes cenários de missões com enxames. Os algoritmos IPPO e QMIX são utilizados como base de aprendizado, e a validação será realizada em uma missão de rastreamento de alvos, com o intuito de demonstrar a capacidade do sistema em guiar os agentes por etapas como detecção, aproximação e rastreamento contínuo de um alvo móvel.
 
 
@@ -52,10 +64,14 @@ A utilização das Máquinas de Recompensa possibilita a exposição da estrutur
 \begin{otherlanguage*}{english}
 %  \linespread{1.3}
 \SingleSpacing
-This work proposes a novel framework that integrates Reward Machines (RMs) with Multi-Agent Reinforcement Learning (MARL) algorithms, aiming to develop autonomous agents for UAV swarms.
-The use of Reward Machines allows the internal structure of the reward function to be explicitly represented during agent training, enabling more efficient convergence toward optimal policies and reducing training time.
-By allowing a structured and hierarchical specification of the reward function through RMs, the proposed framework seeks to enable decentralized agents to learn complex behaviors composed of multiple subtasks within a single mission.
-The expected outcome is a reusable framework for the development of autonomous swarms capable of handling complex missions.
+This work investigates the integration of Reward Machines (RMs) into Multi-Agent Reinforcement Learning (MARL) algorithms applied to the decentralized control of Unmanned Aerial Vehicle (UAV) swarms in simulated
+environments.Reward Machines enable an explicit representation of the logical structure of the reward function, allowing complex missions to be decomposed into
+subtasks and providing a more expressive specification of task objectives during training. The proposed approach analyzes how the use of RMs affects agent behavior,
+coordination, and learning stability in decentralized multi-agent settings, considering cooperative navigation with obstacle avoidance.
+Simulation results indicate that structured reward modeling through Reward Machines represents a promising alternative for specifying complex tasks in
+multi-agent reinforcement learning, contributing to the study of decentralized
+control architectures for UAV swarms.
+
 %The architecture follows the Decentralized Training and Decentralized Execution (DTDE) paradigm and is designed to be reusable across different swarm mission scenarios.
 
 %IPPO and QMIX algorithms are used as the learning backbone, and validation will be conducted in a target-tracking mission to demonstrate the system's ability to guide agents through stages such as detection, approach, and continuous tracking of a moving target.

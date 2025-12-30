@@ -1,7 +1,7 @@
 \section{Implementação do Algoritmo MAPPO}
 \label{sec:algoritmo_aprendizado}
 
-Este capítulo descreve a implementação prática do algoritmo \textit{Multi-Agent Proximal Policy Optimization} (MAPPO) nos ambientes AirSim e IsaacSim. Em ambos os casos, a formulação do algoritmo segue como base o trabalho de referência apresentado em \cite{yu2021mappo}. No entanto, pequenas diferenças de implementação são observadas em função das bibliotecas de aprendizado por reforço adotadas em cada simulador, bem como das particularidades da integração entre o algoritmo e o ambiente de simulação.
+Este capítulo descreve a implementação prática do algoritmo \textit{Multi-Agent Proximal Policy Optimization} (MAPPO) nos ambientes AirSim e IsaacSim. Em ambos os casos, a formulação do algoritmo segue como base o trabalho de referência apresentado em \citeonline{yu2021mappo}. No entanto, pequenas diferenças de implementação são observadas em função das bibliotecas de aprendizado por reforço adotadas em cada simulador, bem como das particularidades da integração entre o algoritmo e o ambiente de simulação.
 
 O foco desta seção está nas arquiteturas das redes neurais do ator e do crítico, uma vez que as principais diferenças entre as duas implementações decorrem da natureza das observações disponíveis em cada ambiente. Enquanto o AirSim fornece observações multimodais, incluindo dados visuais e vetoriais, o IsaacSim adota um espaço de observação puramente vetorial, mais próximo do nível dinâmico do controle. Essas diferenças motivaram escolhas arquiteturais distintas, discutidas ao longo desta seção.
 
