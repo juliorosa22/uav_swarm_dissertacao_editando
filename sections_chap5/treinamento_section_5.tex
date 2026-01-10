@@ -1,93 +1,306 @@
 \section{Métricas de Treinamento}
 \label{sec:metricas_treinamento}
 
-Esta seção apresenta a análise das métricas de treinamento do algoritmo MAPPO ao longo do aprendizado curricular no ambiente IsaacLab. O objetivo é avaliar a estabilidade do processo de otimização, a qualidade da estimativa da função de valor e o comportamento exploratório das políticas aprendidas em cada estágio.
+%Esta seção apresenta a análise das métricas de treinamento do algoritmo MAPPO ao longo do aprendizado curricular no ambiente IsaacLab. O objetivo é avaliar a estabilidade do processo de otimização, a qualidade da estimativa da função de valor e o comportamento exploratório das políticas aprendidas em cada estágio.
 
 As métricas analisadas incluem a função de custo da política (\textit{policy loss}), a função de custo do crítico (\textit{value loss}) e a entropia da política. Todas as métricas são apresentadas separadamente por agente, de modo a evidenciar possíveis assimetrias no aprendizado dentro do enxame.
+
+\subsection{Configuração dos Experimentos de Treinamento}
+    \label{subsec:config_experimentos}
+
+    Antes da análise detalhada das métricas de treinamento, apresenta-se um resumo dos modelos avaliados, indicando os diferentes estágios do currículo, o número total de interações com o ambiente e o tipo de função de recompensa empregada. Essa organização permite contextualizar adequadamente os resultados apresentados nas subseções seguintes.
+
+    \begin{table}[H]
+    \centering
+    \caption{Resumo dos modelos treinados e avaliados}
+    \label{tab:modelos_treinados}
+    \begin{tabular}{l c l}
+    \hline
+    \textbf{Modelo} & \textbf{Timesteps} & \textbf{Descrição} \\
+    \hline
+    Estágio 1 & 200k & Modelo com Máquinas de Recompensa (RM) \\
+    Estágio 2 & 250k & Modelo com Máquinas de Recompensa (RM) \\
+    Estágio 3 & 300k & Modelo com Máquinas de Recompensa (RM) \\
+    Estágio 4 & 300k & Modelo com Máquinas de Recompensa (RM) \\
+    Estágio 5 (RM) & 1M & Modelo com Máquinas de Recompensa (RM) \\
+    Estágio 5 (Baseline) & 2M & Modelo sem uso de Máquinas de Recompensa (RM) \\
+    \hline
+    \end{tabular}
+    \end{table}
 
 \subsection{Policy Loss}
 \label{subsec:policy_loss}
 
-A \textit{policy loss} reflete a qualidade das atualizações da política sob o critério de otimização do PPO. Valores estáveis e com tendência de convergência indicam gradientes consistentes e aprendizado estável.
+    A \textit{policy loss} corresponde à função objetivo utilizada na atualização das políticas descentralizadas no algoritmo MAPPO, sendo derivada do critério de otimização do Proximal Policy Optimization (PPO). Essa métrica reflete o impacto das atualizações de gradiente sobre os parâmetros da política, incorporando mecanismos de regularização, como o \textit{clipping} da razão de probabilidade, com o objetivo de limitar variações abruptas entre políticas consecutivas e garantir estabilidade durante o treinamento.
 
-A Figura~\ref{fig:policy_loss} apresenta a evolução da \textit{policy loss} para cada agente ao longo do treinamento, considerando os diferentes estágios do aprendizado curricular.
+    No contexto do aprendizado por reforço, valores da \textit{policy loss} não devem ser interpretados isoladamente como uma medida direta de desempenho, mas sim como um indicativo da dinâmica do processo de otimização. Em um treinamento considerado saudável, espera-se que a \textit{policy loss} apresente oscilações controladas em torno de um valor médio, sem crescimento descontrolado ou padrões altamente instáveis. Esse comportamento indica que as atualizações da política estão ocorrendo de forma consistente, respeitando as restrições impostas pelo mecanismo de \textit{clipping} e mantendo um equilíbrio adequado entre exploração e exploração.
 
-\begin{figure}[ht]
-    \centering
+    Em cenários multiagentes, a análise da \textit{policy loss} permite ainda investigar a homogeneidade do processo de aprendizado entre os diferentes agentes do enxame. Discrepâncias significativas ou picos persistentes nessa métrica podem sinalizar dificuldades de adaptação da política a mudanças na dinâmica do ambiente, bem como possíveis assimetrias decorrentes de papéis funcionais distintos entre os agentes. Dessa forma, a avaliação da evolução da \textit{policy loss} ao longo dos diferentes estágios do currículo fornece indícios importantes sobre a estabilidade do processo de aprendizado e a capacidade das políticas em se adaptar progressivamente ao aumento da complexidade das tarefas.
 
-    % ---------- Linha 1 ----------
-    \begin{subfigure}[t]{0.48\linewidth}
+    A Figura~\ref{fig:policy_loss} apresenta a evolução da \textit{policy loss} para cada agente ao longo do treinamento, considerando os diferentes estágios das tarefas do enxame.
+
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=\linewidth]{plots/normalized_stage4_value_loss.pdf}
-        \caption{Estágio 1}
-        \label{fig:policy_loss_stage1}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{plots/normalized_stage4_value_loss.pdf}
-        \caption{Estágio 2}
-        \label{fig:policy_loss_stage2}
-    \end{subfigure}
 
-    \vspace{0.5em}
+        % ---------- Linha 1 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage1_policy_loss.pdf}
+            \caption{Estágio 1}
+            \label{fig:policy_loss_stage1}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage2_policy_loss.pdf}
+            \caption{Estágio 2}
+            \label{fig:policy_loss_stage2}
+        \end{subfigure}
 
-    % ---------- Linha 2 ----------
-    \begin{subfigure}[t]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{plots/stage3_training_policy_loss.pdf}
-        \caption{Estágio 3}
-        \label{fig:policy_loss_stage3}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[t]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{plots/stage4_training_policy_loss.pdf}
-        \caption{Estágio 4}
-        \label{fig:policy_loss_stage4}
-    \end{subfigure}
+        \vspace{0.5em}
 
-    \vspace{0.5em}
+        % ---------- Linha 2 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage3_policy_loss.pdf}
+            \caption{Estágio 3}
+            \label{fig:policy_loss_stage3}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage4_policy_loss.pdf}
+            \caption{Estágio 4}
+            \label{fig:policy_loss_stage4}
+        \end{subfigure}
 
-    % ---------- Linha 3 (Stage 5 em destaque) ----------
-    \begin{subfigure}[t]{0.98\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{plots/stage5_training_policy_loss.pdf}
-        \caption{Estágio 5}
-        \label{fig:policy_loss_stage5}
-    \end{subfigure}
+        \vspace{0.5em}
 
-    \caption{Evolução da \textit{policy loss} ao longo do treinamento para os diferentes estágios do currículo.
-    Cada subfigura apresenta a média da métrica agregada entre os agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.
-    A mesma escala vertical é utilizada em todos os estágios para fins de comparação.}
-    \label{fig:policy_loss_all_stages}
-\end{figure}
+        % ---------- Linha 3 (Stage 5 em destaque) ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage5_policy_loss.pdf}
+            \caption{Estágio 5 (RM)}
+            \label{fig:policy_loss_stage5}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stagebaseline_policy_loss.pdf}
+            \caption{Estágio 5 (Baseline)}
+            \label{fig:policy_loss_stage5_baseline}
+        \end{subfigure}
 
+        \caption{Evolução da \textit{policy loss} ao longo do treinamento para os diferentes estágios do currículo.
+        Cada subfigura apresenta a média da métrica agregada entre os agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.
+        A mesma escala vertical é utilizada em todos os estágios para fins de comparação.}
+        \label{fig:policy_loss_all_stages}
+    \end{figure}
 
-%%inserir o quadro com os plots de policy loss para cada estágio curricular
-
-
-% Inserir figura aqui
-
+    %TODO Comentar os resultados observados nos gráficos acima, destacando a estabilidade do treinamento e possíveis diferenças entre os estágios curriculares.
 
 \subsection{Value Loss}
-\label{subsec:value_loss}
+    \label{subsec:value_loss}
 
-A \textit{value loss} avalia o erro de aproximação da função de valor global estimada pelo crítico centralizado. Uma redução progressiva dessa métrica indica que o crítico é capaz de fornecer estimativas consistentes dos retornos esperados, o que é fundamental para a estabilidade do MAPPO.
+    A \textit{value loss} representa o erro de aproximação da função de valor estimada pelo crítico centralizado durante o treinamento do algoritmo MAPPO. Essa métrica quantifica a discrepância entre os retornos empíricos observados ao longo das trajetórias amostradas e as estimativas produzidas pela rede neural responsável por modelar a função de valor. No contexto de métodos do tipo ator-crítico, a qualidade dessa estimativa é fundamental, uma vez que o crítico fornece o sinal de vantagem utilizado na atualização das políticas descentralizadas dos agentes.
 
-A Figura~\ref{fig:value_loss} apresenta o comportamento da \textit{value loss} ao longo do treinamento para cada agente.
+    Em um processo de treinamento bem-sucedido, espera-se que a \textit{value loss} apresente uma redução progressiva ao longo do tempo, refletindo a capacidade do crítico em capturar de forma consistente a dinâmica do ambiente e os retornos esperados associados às políticas em aprendizado. Após uma fase inicial de maior variabilidade, associada à exploração e à rápida mudança das políticas, o comportamento ideal da métrica envolve a convergência para valores baixos e relativamente estáveis, indicando que o crítico acompanha adequadamente a evolução das políticas sem introduzir estimativas ruidosas ou enviesadas.
 
-%TODO - adicionar figura com value loss para cada estágio curricular
+    Em cenários multiagentes com crítico centralizado, como no MAPPO, uma \textit{value loss} excessivamente elevada ou altamente oscilatória pode comprometer a estabilidade do treinamento, uma vez que erros sistemáticos na estimativa da função de valor tendem a se propagar para o cálculo das vantagens, afetando negativamente as atualizações das políticas individuais. Por outro lado, valores persistentemente baixos e com pouca dispersão entre agentes indicam que o crítico é capaz de generalizar de forma adequada sobre os estados compartilhados do enxame, contribuindo para um processo de aprendizado mais estável e eficiente.
+
+    A Figura~\ref{fig:value_loss} apresenta a evolução da \textit{value loss} ao longo do treinamento para os diferentes estágios do currículo, permitindo avaliar o impacto da complexidade crescente da tarefa e da utilização de Máquinas de Recompensa na qualidade da estimativa da função de valor.
 
 
+    \begin{figure}[H]
+        \centering
 
+        % ---------- Linha 1 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage1_value_loss.pdf}
+            \caption{Estágio 1}
+            \label{fig:value_loss_stage1}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage2_value_loss.pdf}
+            \caption{Estágio 2}
+            \label{fig:value_loss_stage2}
+        \end{subfigure}
 
-\begin{figure}[ht]
-    \centering
-    % \includegraphics[width=0.8\linewidth]{fig_stage4_value_loss.pdf}
-    \caption{Evolução da \textit{value loss} durante o treinamento do Estágio~4. A curva representa a média entre agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.}
-    \label{fig:stage4_value_loss}
-\end{figure}
+        \vspace{0.5em}
 
-\subsection{Recompensa Média Global}
-%%TODO - adicionar seção de recompensa média global explicacao geral e comportamento esperado aumento da recompensa conforme o treinamento avança
+        % ---------- Linha 2 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage3_value_loss.pdf}
+            \caption{Estágio 3}
+            \label{fig:value_loss_stage3}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage4_value_loss.pdf}
+            \caption{Estágio 4}
+            \label{fig:value_loss_stage4}
+        \end{subfigure}
+
+        \vspace{0.5em}
+
+        % ---------- Linha 3 (Stage 5 em destaque) ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage5_value_loss.pdf}
+            \caption{Estágio 5 (RM)}
+            \label{fig:value_loss_stage5}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stagebaseline_value_loss.pdf}
+            \caption{Estágio 5 (Baseline)}
+            \label{fig:value_loss_stage5_baseline}
+        \end{subfigure}
+
+        \caption{Evolução da \textit{value loss} ao longo do treinamento para os diferentes estágios do currículo.
+        Cada subfigura apresenta a média da métrica agregada entre os agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.
+        A mesma escala vertical é utilizada em todos os estágios para fins de comparação.}
+        \label{fig:policy_loss_all_stages}
+    \end{figure}
+    %TODO Comentar os resultados observados nos gráficos acima, destacando a estabilidade do treinamento e possíveis diferenças entre os estágios curriculares.
+\subsection{Recompensa Média}
+\label{subsec:recompensa_media}
+
+A recompensa média global constitui uma métrica fundamental para avaliar o desempenho agregado das políticas aprendidas ao longo do processo de treinamento. Essa métrica representa o retorno médio obtido pelos agentes em cada episódio ou janela de interação, refletindo de forma direta a capacidade do sistema multiagente em maximizar o objetivo definido pela função de recompensa. Diferentemente das métricas de otimização interna, como as funções de custo da política e do crítico, a recompensa média fornece uma medida mais intuitiva do progresso do aprendizado em relação à tarefa proposta.
+
+Em um cenário de treinamento bem-sucedido, espera-se que a recompensa média apresente uma tendência crescente ao longo do tempo, indicando que os agentes estão aprendendo comportamentos cada vez mais alinhados com os objetivos da missão. Em fases iniciais do treinamento, valores baixos e alta variabilidade são comuns, em função da exploração e da ausência de políticas bem estruturadas. À medida que o aprendizado avança, o comportamento ideal envolve não apenas o aumento do valor médio da recompensa, mas também a redução de sua variância, sinalizando maior consistência na execução das tarefas.
+
+No contexto de aprendizado por reforço multiagente, a interpretação da recompensa média deve considerar a natureza cooperativa do problema e a possível existência de múltiplas subtarefas ou objetivos intermediários. Dessa forma, ganhos progressivos na recompensa média indicam não apenas melhorias individuais, mas também a emergência de comportamentos coordenados no enxame. A análise dessa métrica ao longo dos diferentes estágios do currículo permite, ainda, investigar o impacto do aumento da complexidade da tarefa e da utilização de Máquinas de Recompensa na eficiência do processo de aprendizado.
+        \begin{figure}[H]
+        \centering
+
+        % ---------- Linha 1 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/stage1_training_reward.pdf}
+            \caption{Estágio 1}
+            \label{fig:reward_stage1}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/stage2_training_reward.pdf}
+            \caption{Estágio 2}
+            \label{fig:reward_stage2}
+        \end{subfigure}
+
+        \vspace{0.5em}
+
+        % ---------- Linha 2 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/stage3_training_reward.pdf}
+            \caption{Estágio 3}
+            \label{fig:reward_stage3}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/stage4_training_reward.pdf}
+            \caption{Estágio 4}
+            \label{fig:reward_stage4}
+        \end{subfigure}
+
+        \vspace{0.5em}
+
+        % ---------- Linha 3 (Stage 5 em destaque) ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/stage5_training_reward.pdf}
+            \caption{Estágio 5 (RM)}
+            \label{fig:reward_stage5}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/stagebaseline_training_reward.pdf}
+            \caption{Estágio 5 (Baseline)}
+            \label{fig:reward_stage5_baseline}
+        \end{subfigure}
+
+        \caption{Evolução da \textit{reward} ao longo do treinamento para os diferentes estágios do currículo.
+        Cada subfigura apresenta a média da métrica agregada entre os agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.
+        A mesma escala vertical é utilizada em todos os estágios para fins de comparação.}
+        \label{fig:reward_all_stages}
+    \end{figure}
+
+    %TODO- Comentar os resultados observados nos gráficos acima, destacando a evolução da recompensa média ao longo dos estágios curriculares e o impacto das Máquinas de Recompensa.
+
+\subsection{Entropia da Política}
+    \label{subsec:entropia_politica}
+
+    A entropia da política é uma métrica amplamente utilizada em algoritmos de aprendizado por reforço para quantificar o grau de estocasticidade das ações selecionadas pelos agentes. Em políticas contínuas, como as empregadas no MAPPO, a entropia está diretamente associada ao desvio padrão da distribuição de ações, sendo um indicador do equilíbrio entre exploração e exploração ao longo do treinamento.
+
+    Durante as fases iniciais do aprendizado, valores elevados de entropia são desejáveis, pois refletem um comportamento exploratório mais pronunciado, essencial para a descoberta de estratégias eficazes em ambientes complexos e parcialmente observáveis. À medida que as políticas se tornam mais informadas e convergem para soluções de maior desempenho, espera-se uma redução gradual da entropia, indicando a transição para um regime mais determinístico e consistente de tomada de decisão.
+
+    Um comportamento considerado ideal para essa métrica envolve, portanto, uma diminuição progressiva e suave da entropia ao longo do treinamento, sem quedas abruptas que possam indicar convergência prematura ou perda excessiva de exploração. Em cenários multiagentes, a análise da entropia também permite identificar possíveis assimetrias no comportamento exploratório entre os agentes, bem como avaliar a estabilidade global do processo de aprendizado. A evolução dessa métrica ao longo dos diferentes estágios do currículo fornece indícios importantes sobre a adequação da estratégia de exploração adotada e sua interação com a complexidade crescente das tarefas.
+
+    \begin{figure}[H]
+        \centering
+
+        % ---------- Linha 1 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage1_entropy_loss.pdf}
+            \caption{Estágio 1}
+            \label{fig:entropy_loss_stage1}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage2_entropy_loss.pdf}
+            \caption{Estágio 2}
+            \label{fig:entropy_loss_stage2}
+        \end{subfigure}
+
+        \vspace{0.5em}
+
+        % ---------- Linha 2 ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage3_entropy_loss.pdf}
+            \caption{Estágio 3}
+            \label{fig:entropy_loss_stage3}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage4_entropy_loss.pdf}
+            \caption{Estágio 4}
+            \label{fig:entropy_loss_stage4}
+        \end{subfigure}
+
+        \vspace{0.5em}
+
+        % ---------- Linha 3 (Stage 5 em destaque) ----------
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stage5_entropy_loss.pdf}
+            \caption{Estágio 5 (RM)}
+            \label{fig:entropy_loss_stage5}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{0.48\linewidth}
+            \centering
+            \includegraphics[width=\linewidth]{plots/normalized_stagebaseline_entropy_loss.pdf}
+            \caption{Estágio 5 (Baseline)}
+            \label{fig:entropy_loss_stage5_baseline}
+        \end{subfigure}
+
+        \caption{Evolução da \textit{entropy loss} ao longo do treinamento para os diferentes estágios do currículo.
+        Cada subfigura apresenta a média da métrica agregada entre os agentes, enquanto a banda indica a variação mínima e máxima observada no enxame.
+        A mesma escala vertical é utilizada em todos os estágios para fins de comparação.}
+        \label{fig:entropy_loss_all_stages}
+    \end{figure}
+    %TODO Comentar os resultados observados nos gráficos acima, destacando a evolução da entropia ao longo dos estágios curriculares e o impacto das Máquinas de Recompensa.

@@ -5,31 +5,187 @@ Após o treinamento, cada política associada a um estágio curricular foi avali
 
 As métricas apresentadas nesta seção correspondem à média dos valores observados ao longo dos episódios de teste, permitindo uma comparação consistente entre os diferentes estágios do aprendizado.
 
-\subsection{Protocolo de Avaliação}
-\label{subsec:protocolo_avaliacao}
+\subsection{Definição das Métricas de Avaliação}
+%TODO - Inserir:
+% Subsubsecao definindo a metrica de distancia media entre os agentes
 
-Para cada estágio do aprendizado curricular, a política treinada foi avaliada em 100 episódios completos no ambiente correspondente. As condições iniciais foram amostradas aleatoriamente dentro dos limites definidos para cada cenário, garantindo diversidade de situações durante os testes.
+\label{subsec:metricas_avaliacao}
 
-Durante a execução dos episódios, não houve atualização dos parâmetros da política ou do crítico, caracterizando um regime de avaliação puramente inferencial.
+    A avaliação das políticas treinadas foi conduzida por meio de testes offline, nos quais cada modelo foi executado em $100$ episódios independentes, sem atualização de parâmetros, com o objetivo de caracterizar o comportamento aprendido de forma estatisticamente representativa. Considerando que, nos estágios mais complexos, episódios de sucesso completo — definidos como todos os agentes atingindo simultaneamente suas posições-alvo — são raros, optou-se por empregar métricas adicionais capazes de capturar intenções de movimento, qualidade do controle e coordenação do enxame, mesmo em episódios não bem-sucedidos.
+
+    A seguir são descritas formalmente as métricas utilizadas.
+
+    \subsubsection*{Distância Final ao Objetivo}
+
+    Ao final de cada episódio, calcula-se a distância euclidiana entre a posição final de cada agente $i$ e sua respectiva posição-alvo:
+    \begin{equation}
+    d_i^{\text{final}} = \lVert \mathbf{p}_i(T) - \mathbf{g}_i \rVert_2,
+    \end{equation}
+    onde $\mathbf{p}_i(T)$ representa a posição do agente no instante final do episódio e $\mathbf{g}_i$ a posição-alvo correspondente. As estatísticas apresentadas consideram a média, o desvio padrão e a mediana dessas distâncias ao longo de todos os agentes e episódios.
+
+    \subsubsection*{Colisões com Obstáculos e Entre Agentes}
+
+    As colisões são contabilizadas em nível de passo de simulação. Define-se uma colisão com obstáculo sempre que qualquer agente viola restrições de altura, entra em proximidade crítica com obstáculos do ambiente ou aciona flags internas de colisão do simulador. De forma análoga, colisões entre agentes são registradas quando a distância relativa entre dois agentes é inferior a um limiar mínimo de segurança.
+
+    Para cada episódio, registra-se o número total de passos em que ocorreu pelo menos uma colisão, permitindo computar estatísticas como colisões médias por episódio.
+
+    \subsubsection*{Métrica de Movimento Direcionado ao Objetivo}
+
+    Para quantificar a intenção de cada agente em mover-se em direção ao seu objetivo, define-se o vetor direção ao objetivo no instante $t$ como:
+    \begin{equation}
+    \mathbf{d}_{i,t} = \mathbf{g}_i - \mathbf{p}_{i,t},
+    \end{equation}
+    onde $\mathbf{p}_{i,t}$ é a posição do agente $i$ no passo $t$. O agente é considerado em movimento direcionado ao objetivo quando:
+    \begin{equation}
+    \mathbf{v}_{i,t} \cdot \mathbf{d}_{i,t} > 0,
+    \end{equation}
+    sendo $\mathbf{v}_{i,t}$ o vetor velocidade do agente.
+
+    A porcentagem de passos direcionados ao objetivo é então definida como:
+    \begin{equation}
+    \text{TowardGoal}(\%) = 
+    \frac{1}{N T}
+    \sum_{t=1}^{T}
+    \sum_{i=1}^{N}
+    \mathbb{1}\left( \mathbf{v}_{i,t} \cdot \mathbf{d}_{i,t} > 0 \right) \times 100,
+    \end{equation}
+    onde $N$ é o número de agentes, $T$ o número de passos do episódio e $\mathbb{1}(\cdot)$ a função indicadora.
+
+    \subsubsection*{Métrica de Progresso Efetivo}
+
+    Além da direção do movimento, avalia-se se o agente efetivamente se aproxima do objetivo ao longo do tempo. Define-se a distância ao objetivo no passo $t$ como:
+    \begin{equation}
+    r_{i,t} = \lVert \mathbf{g}_i - \mathbf{p}_{i,t} \rVert_2.
+    \end{equation}
+
+    Considera-se que houve progresso quando:
+    \begin{equation}
+    r_{i,t-1} - r_{i,t} > \varepsilon,
+    \end{equation}
+    onde $\varepsilon$ é um pequeno limiar para evitar efeitos numéricos. A porcentagem de passos com progresso é dada por:
+    \begin{equation}
+    \text{ProgressSteps}(\%) =
+    \frac{1}{N (T-1)}
+    \sum_{t=2}^{T}
+    \sum_{i=1}^{N}
+    \mathbb{1}\left( r_{i,t-1} - r_{i,t} > \varepsilon \right) \times 100.
+    \end{equation}
+
+    \subsubsection*{Alinhamento Direcional (Intenção Contínua)}
+
+    Para capturar não apenas a direção, mas a intensidade do alinhamento do movimento ao objetivo, calcula-se o cosseno do ângulo entre o vetor velocidade e o vetor direção ao objetivo:
+    \begin{equation}
+    \cos(\theta_{i,t}) =
+    \frac{\mathbf{v}_{i,t} \cdot \mathbf{d}_{i,t}}
+    {\lVert \mathbf{v}_{i,t} \rVert_2 \lVert \mathbf{d}_{i,t} \rVert_2}.
+    \end{equation}
+
+    A métrica de intenção direcional considera apenas valores positivos, sendo definida como:
+    \begin{equation}
+    \text{IntentCosine}(\%) =
+    \frac{1}{|\mathcal{S}|}
+    \sum_{(i,t)\in\mathcal{S}}
+    \max(0, \cos(\theta_{i,t})) \times 100,
+    \end{equation}
+    onde $\mathcal{S}$ representa o conjunto de pares $(i,t)$ nos quais a velocidade do agente é suficientemente diferente de zero.
+
+    \subsubsection*{Coordenação do Enxame}
+
+    Para avaliar a coordenação coletiva, define-se a métrica de intenção conjunta do enxame. Em um dado passo $t$, considera-se que o enxame está alinhado ao objetivo quando todos os agentes satisfazem a condição de movimento direcionado:
+    \begin{equation}
+    \forall i \in \{1,\dots,N\}, \quad \mathbf{v}_{i,t} \cdot \mathbf{d}_{i,t} > 0.
+    \end{equation}
+
+    A porcentagem de passos com alinhamento completo do enxame é dada por:
+    \begin{equation}
+    \text{SwarmToward}(\%) =
+    \frac{1}{T}
+    \sum_{t=1}^{T}
+    \mathbb{1}\left(
+    \forall i,\ \mathbf{v}_{i,t} \cdot \mathbf{d}_{i,t} > 0
+    \right) \times 100.
+    \end{equation}
+
+    \subsubsection*{Suavidade do Movimento}
+
+    A suavidade do controle é avaliada por meio da variação da velocidade linear entre passos consecutivos, servindo como uma aproximação da aceleração média do sistema:
+    \begin{equation}
+    \text{Smoothness} =
+    \frac{1}{T-1}
+    \sum_{t=2}^{T}
+    \left\|
+    \mathbf{v}_t - \mathbf{v}_{t-1}
+    \right\|_2.
+    \end{equation}
+
+    Valores menores indicam movimentos mais suaves e fisicamente plausíveis, enquanto valores elevados sugerem oscilações ou comandos agressivos.
+
 
 
 \subsection{Resultados Quantitativos}
 \label{subsec:resultados_quantitativos}
 
-A Tabela~\ref{tab:metricas_avaliacao} apresenta as métricas de desempenho obtidas para cada estágio do aprendizado curricular. As colunas correspondem aos estágios de treinamento, enquanto as linhas representam as métricas avaliadas.
+%TODO criar uma subsecao para descrever  como cada metrica foi calculada e o que ela representa
 
-\begin{table}[H]
+
+% A Tabela~\ref{tab:metricas_avaliacao} apresenta as métricas de desempenho obtidas para cada estágio do aprendizado curricular. As colunas correspondem aos estágios de treinamento, enquanto as linhas representam as métricas avaliadas.
+
+% \begin{table}[H]
+% \centering
+% \caption{Métricas de avaliação das políticas treinadas em cada estágio curricular.}
+% \label{tab:metricas_avaliacao}
+% \begin{tabular}{lccccc}
+% \hline
+% \textbf{Métrica} & \textbf{Estágio 1} & \textbf{Estágio 2} & \textbf{Estágio 3} & \textbf{Estágio 4} & \textbf{Estágio 5} \\
+% \hline
+% Taxa de sucesso (\%) &  &  &  &  &  \\
+% Colisões médias &  &  &  &  &  \\
+% Distância média interagentes &  &  &  &  &  \\
+% Tempo médio até o objetivo &  &  &  &  &  \\
+% \hline
+% \end{tabular}
+% \end{table}
+
+\begin{table}[ht]
 \centering
-\caption{Métricas de avaliação das políticas treinadas em cada estágio curricular.}
-\label{tab:metricas_avaliacao}
-\begin{tabular}{lccccc}
-\hline
-\textbf{Métrica} & \textbf{Hover} & \textbf{P2P} & \textbf{Obs.} & \textbf{Form.} & \textbf{Form.+Obs.} \\
-\hline
-Taxa de sucesso (\%) &  &  &  &  &  \\
-Colisões médias &  &  &  &  &  \\
-Distância média interagentes &  &  &  &  &  \\
-Tempo médio até o objetivo &  &  &  &  &  \\
-\hline
+\caption{Métricas de avaliação ao longo de 100 episódios para políticas baseadas em RM nos Estágios~1--4.}
+\label{tab:rm_early_stages}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Métrica} & \textbf{Estágio 1} & \textbf{Estágio 2} & \textbf{Estágio 3} & \textbf{Estágio 4} \\
+\midrule
+Episódios com colisões (\%) & -- & -- & -- & -- \\
+Erro final ao objetivo (m) & -- & -- & -- & -- \\
+Intenção contínua (\%) & $-- \pm --$ & $-- \pm --$ & $-- \pm --$ & $-- \pm --$ \\
+Passos de progresso (\%) & $-- \pm --$ & $-- \pm --$ & $-- \pm --$ & $-- \pm --$ \\
+Suavidade do movimento $\downarrow$ & $-- \pm --$ & $-- \pm --$ & $-- \pm --$ & $-- \pm --$ \\
+Distância mínima entre agentes (m) & -- & -- & -- & $-- \pm --$ \\
+Enxame coordenado (\%) & -- & -- & -- & $-- \pm --$ \\
+\bottomrule
 \end{tabular}
+}
+\end{table}
+
+
+
+\begin{table}[ht]
+\centering
+\caption{Comparação das métricas no Estágio~5 entre a abordagem baseada em RM e a baseline.}
+\label{tab:stage5_comparison}
+
+\begin{tabular}{lcc}
+\toprule
+\textbf{Métrica} & \textbf{RM} & \textbf{Baseline} \\
+\midrule
+Collision episodes (\%) & -- & -- \\
+Final goal error (m) & -- & -- \\
+Intent cosine (\%) & $\mathbf{-- \pm --}$ & $-- \pm --$ \\
+Progress steps (\%) & $\mathbf{-- \pm --}$ & $-- \pm --$ \\
+Swarm-all-toward (\%) & $\mathbf{-- \pm --}$ & $-- \pm --$ \\
+Min inter-agent distance (m) & $\mathbf{-- \pm --}$ & $-- \pm --$ \\
+Motion smoothness $\downarrow$ & $\mathbf{-- \pm --}$ & $-- \pm --$ \\
+\bottomrule
+\end{tabular}
+
 \end{table}

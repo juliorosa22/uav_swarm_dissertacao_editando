@@ -1,4 +1,8 @@
+%TODO
+%Incrementar a analise dos trabalhos relacionados analisando como eles modelaram a funcao recompensa
+% Incrementar a secao de lacunas e desafios para discutir como as abordagens adotadas no projeto das funcoes recompensa podem superar essas lacunas
 \chapter{Trabalhos Relacionados}
+\label{chap3_related_work}
 Neste capítulo, são apresentados os trabalhos identificados a partir de uma revisão sistemática da literatura. É importante ressaltar que os trabalhos incluídos aqui representam apenas um extrato da literatura acadêmica, servindo como referencial para o desenvolvimento desta dissertação.
 \section{Revisão Sistemática da Literatura}
 Esta revisão foca especificamente em abordagens baseadas em IA, particularmente Aprendizado por Reforço (RL) e Aprendizado Profundo (DL), em vez de oferecer uma análise ampla dos métodos tradicionais. Esse foco é motivado pelo crescente consenso na literatura de que as técnicas de IA são essenciais para superar as limitações das abordagens convencionais na adaptação a ambientes complexos e dinâmicos. Os VANTs modernos agora são equipados com processadores poderosos e sensores avançados, permitindo tomada de decisão em tempo real e ajustes dinâmicos às mudanças ambientais. Os objetivos que esta revisão busca enfatizar são:  %Métodos tradicionais, como técnicas baseadas em regras ou otimização estática, frequentemente carecem da flexibilidade necessária para lidar com mudanças imprevisíveis ou condições não estruturadas.
@@ -132,37 +136,36 @@ Belief-policy interrelation framework using GAIL for coordination in heterogeneo
 
 
 \subsection{Aprimoramento na Execução de Tarefas}
-\subsubsection{Controle Dinâmico de Formação}
-Vários artigos, incluindo \cite{ID1}, demonstram a integração de algoritmos de RL e DL para permitir que enxames de VANTs mantenham formações sinérgicas em ambientes incertos. Por exemplo, o framework P-DRL em \cite{ID1}, utilizando algoritmos como A3C e DQN, aborda a incerteza operacional ao dividir o problema de controle em subproblemas mais simples, reduzindo significativamente a complexidade computacional, enquanto mantém a capacidade de resposta em tempo real. No entanto, limitações na prevenção de colisões indicam que melhorias adicionais na interação entre múltiplos agentes são necessárias.
+\subsubsection*{\textbf{Controle Dinâmico de Formação}}
+Vários artigos, incluindo \citeonline{ID1}, demonstram a integração de algoritmos de RL e DL para permitir que enxames de VANTs mantenham formações sinérgicas em ambientes incertos. Por exemplo, o framework P-DRL em ~\citeonline{ID1}, utilizando algoritmos como A3C e DQN, aborda a incerteza operacional ao dividir o problema de controle em subproblemas mais simples, reduzindo significativamente a complexidade computacional, enquanto mantém a capacidade de resposta em tempo real. No entanto, limitações na prevenção de colisões indicam que melhorias adicionais na interação entre múltiplos agentes são necessárias.
 
-\subsubsection{Manobras e Rastreamento de Múltiplos Alvos}
-Os artigos \cite{ID2} e \cite{ID11} enfrentam os desafios da tomada de decisão cooperativa e do rastreamento de múltiplos alvos em ambientes 3D dinâmicos. Utilizando métodos avançados de MARL, como MP3O e frameworks otimizados por recompensa, esses trabalhos alcançam melhorias notáveis na eficiência da tomada de decisão e na versatilidade do enxame. Além disso, o conceito de enxame dinâmico em \cite{ID11} oferece soluções inovadoras para particionamento e reagrupamento de VANTs com base na distribuição de alvos, aumentando a flexibilidade operacional.
+\subsubsection*{\textbf{Manobras e Rastreamento de Múltiplos Alvos}}
+Os artigos ~\citeonline{ID2} e ~\citeonline{ID11} enfrentam os desafios da tomada de decisão cooperativa e do rastreamento de múltiplos alvos em ambientes 3D dinâmicos. Utilizando métodos avançados de MARL, como MP3O e frameworks otimizados por recompensa, esses trabalhos alcançam melhorias notáveis na eficiência da tomada de decisão e na versatilidade do enxame. Além disso, o conceito de enxame dinâmico em ~\citeonline{ID11} oferece soluções inovadoras para particionamento e reagrupamento de VANTs com base na distribuição de alvos, aumentando a flexibilidade operacional.
 
-\subsubsection{Alocação de Tarefas e Cobertura de Área}
-A alocação de tarefas e a cobertura de área emergem como áreas de foco críticas em \cite{ID4} e \cite{ID3}. Os algoritmos baseados em DRL propostos distribuem de forma eficiente as tarefas de sensoriamento e ajustam dinamicamente os pontos de cobertura. Por exemplo, o método de alocação de tarefas Pareto-ótimo em \cite{ID4} combina a colaboração entre VANTs e humanos, enfatizando aplicações no mundo real, como cidades inteligentes e serviços públicos. Esses estudos ressaltam o potencial das técnicas de DL na otimização do desempenho das tarefas, ao mesmo tempo em que lidam com restrições como comunicação e poder computacional.
+\subsubsection*{\textbf{Alocação de Tarefas e Cobertura de Área}}
+A alocação de tarefas e a cobertura de área emergem como áreas de foco críticas em ~\citeonline{ID4} e ~\citeonline{ID3}. Os algoritmos baseados em DRL propostos distribuem de forma eficiente as tarefas de sensoriamento e ajustam dinamicamente os pontos de cobertura. Por exemplo, o método de alocação de tarefas Pareto-ótimo em ~\citeonline{ID4} combina a colaboração entre VANTs e humanos, enfatizando aplicações no mundo real, como cidades inteligentes e serviços públicos. Esses estudos ressaltam o potencial das técnicas de DL na otimização do desempenho das tarefas, ao mesmo tempo em que lidam com restrições como comunicação e poder computacional.
 
-\subsubsection{Prevenção de Colisões e Navegação}
-Técnicas como as descritas em \cite{ID7} e \cite{ID11} priorizam a navegação segura e a prevenção de obstáculos por meio de mecanismos avançados de recompensa e frameworks de treinamento com RL. A abordagem DRL em duas etapas apresentada em \cite{ID7}, incorporando experiência de especialistas, melhora a velocidade de convergência e a capacidade de generalização em ambientes dinâmicos. Isso reduz os custos de treinamento, garantindo uma navegação confiável para múltiplos agentes.
-
+\subsubsection*{\textbf{Prevenção de Colisões e Navegação}}
+Técnicas como as descritas em ~\citeonline{ID7} e ~\citeonline{ID11} priorizam a navegação segura e a prevenção de obstáculos por meio de mecanismos avançados de recompensa e frameworks de treinamento com RL. A abordagem DRL em duas etapas apresentada em ~\citeonline{ID7}, incorporando experiência de especialistas, melhora a velocidade de convergência e a capacidade de generalização em ambientes dinâmicos. Isso reduz os custos de treinamento, garantindo uma navegação confiável para múltiplos agentes.
 
 \subsection{Melhorias de Desempenho e Trade-Offs}
-\subsubsection{Escalabilidade}
-A escalabilidade, um desafio crítico em sistemas de enxame de VANTs, foi abordada de forma eficaz em diversos estudos. Por exemplo, o framework P-DRL em \cite{ID1} demonstrou controle de formação em tempo real para enxames compostos por 10–20 VANTs, ampliando significativamente a escalabilidade da coordenação multiagente. Da mesma forma, \cite{ID11} introduziu um conceito de enxame dinâmico que permitiu a partição e reagrupamento de grupos de VANTs de forma adaptativa, garantindo flexibilidade para atender às mudanças nos requisitos das tarefas. Essas abordagens ressaltam o potencial dos métodos de RL na expansão das operações do enxame sem comprometer o desempenho, embora frequentemente exijam recursos computacionais substanciais durante o treinamento.
+\subsubsection*{\textbf{Escalabilidade}}
+A escalabilidade, um desafio crítico em sistemas de enxame de VANTs, foi abordada de forma eficaz em diversos estudos. Por exemplo, o framework P-DRL em ~\citeonline{ID1} demonstrou controle de formação em tempo real para enxames compostos por 10–20 VANTs, ampliando significativamente a escalabilidade da coordenação multiagente. Da mesma forma, ~\citeonline{ID11} introduziu um conceito de enxame dinâmico que permitiu a partição e reagrupamento de grupos de VANTs de forma adaptativa, garantindo flexibilidade para atender às mudanças nos requisitos das tarefas. Essas abordagens ressaltam o potencial dos métodos de RL na expansão das operações do enxame sem comprometer o desempenho, embora frequentemente exijam recursos computacionais substanciais durante o treinamento.
 
-\subsubsection{Tempo de Execução}
-A redução do tempo de execução para tarefas como planejamento dinâmico de trajetória e controle de formação é essencial para aplicações em tempo real. Estudos como \cite{ID5} utilizaram aprendizado por reforço profundo multitarefa (MT-DDPG) para acelerar a conclusão de operações de pastoreio. Da mesma forma, \cite{ID9} empregou modelos leves de DL, como o YOLOv7, para realizar controle de formação baseado em visão em tempo real, demonstrando tempos de execução adequados para processamento embarcado. No entanto, essas melhorias aumentam a complexidade algorítmica e exigem treinamento intensivo em recursos computacionais.
+\subsubsection*{\textbf{Tempo de Execução}}
+A redução do tempo de execução para tarefas como planejamento dinâmico de trajetória e controle de formação é essencial para aplicações em tempo real. Estudos como ~\citeonline{ID5} utilizaram aprendizado por reforço profundo multitarefa (MT-DDPG) para acelerar a conclusão de operações de pastoreio. Da mesma forma, ~\citeonline{ID9} empregou modelos leves de DL, como o YOLOv7, para realizar controle de formação baseado em visão em tempo real, demonstrando tempos de execução adequados para processamento embarcado. No entanto, essas melhorias aumentam a complexidade algorítmica e exigem treinamento intensivo em recursos computacionais.
 
-\subsubsection{Taxa de Sucesso}
-O aprimoramento da taxa de sucesso em tarefas do enxame, como prevenção de colisões e alocação dinâmica de tarefas, foi um foco central. Por exemplo, \cite{ID2} relatou maior estabilidade e eficiência na tomada de decisão cooperativa utilizando o algoritmo MP3O, melhorando as taxas de sucesso em manobras de combate aéreo. Além disso, \cite{ID7} demonstrou que o pré-treinamento de agentes com dados especializados levou a uma convergência mais rápida e a resultados de rastreamento mais confiáveis, especialmente em ambientes com obstáculos. No entanto, esses sucessos geralmente dependem de um design cuidadoso das funções de recompensa e otimizações específicas do domínio, o que pode limitar a generalização dos métodos.
+\subsubsection*{\textbf{Taxa de Sucesso}}
+O aprimoramento da taxa de sucesso em tarefas do enxame, como prevenção de colisões e alocação dinâmica de tarefas, foi um foco central. Por exemplo, ~\citeonline{ID2} relatou maior estabilidade e eficiência na tomada de decisão cooperativa utilizando o algoritmo MP3O, melhorando as taxas de sucesso em manobras de combate aéreo. Além disso, ~\citeonline{ID7} demonstrou que o pré-treinamento de agentes com dados especializados levou a uma convergência mais rápida e a resultados de rastreamento mais confiáveis, especialmente em ambientes com obstáculos. No entanto, esses sucessos geralmente dependem de um design cuidadoso das funções de recompensa e otimizações específicas do domínio, o que pode limitar a generalização dos métodos.
 
-\subsubsection{Resiliência}
-A resiliência a incertezas ambientais e falhas do sistema foi destacada em estudos que empregam técnicas de randomização de domínio. \cite{ID6} propôs a randomização adversarial de domínio para melhorar a robustez das políticas MARL na transição de simulação para realidade, garantindo desempenho consistente em diversos cenários operacionais. Da mesma forma, \cite{ID8} introduziu um framework de perseguição e evasão que manteve o sucesso da missão mesmo quando alguns VANTs do enxame foram comprometidos. Embora esses métodos aumentem a resiliência, geralmente exigem alto custo computacional e ambientes de simulação extensivos para um treinamento eficaz.
+\subsubsection*{\textbf{Resiliência}}
+A resiliência a incertezas ambientais e falhas do sistema foi destacada em estudos que empregam técnicas de randomização de domínio. ~\citeonline{ID6} propôs a randomização adversarial de domínio para melhorar a robustez das políticas MARL na transição de simulação para realidade, garantindo desempenho consistente em diversos cenários operacionais. Da mesma forma, ~\citeonline{ID8} introduziu um framework de perseguição e evasão que manteve o sucesso da missão mesmo quando alguns VANTs do enxame foram comprometidos. Embora esses métodos aumentem a resiliência, geralmente exigem alto custo computacional e ambientes de simulação extensivos para um treinamento eficaz.
 
-\subsubsection{Trade-Offs}
+\subsubsection*{\textbf{Trade-Offs}}
 \begin{itemize}
-    \item \textbf{Demandas Computacionais}: Métodos como randomização adversarial de domínio \cite{ID6} e frameworks hierárquicos profundos \cite{ID8} exigem altos recursos computacionais, o que pode limitar sua implementação em sistemas de VANTs com restrições de hardware.
-    \item \textbf{Complexidade do Treinamento}: Técnicas que enfatizam adaptabilidade e resiliência, como reconfiguração dinâmica de enxame \cite{ID11} ou DRL em duas etapas \cite{ID7}, frequentemente envolvem pipelines de treinamento complexos, demandando expertise significativa e tempo de desenvolvimento.
-    \item \textbf{Implantação no Mundo Real}: Embora os resultados em simulação sejam promissores, métodos como P-DRL \cite{ID1} e MP3O \cite{ID2} enfrentam desafios na transição para aplicações reais devido a fatores como imprecisões nos sensores e restrições de comunicação.
+    \item \textbf{Demandas Computacionais}: Métodos como randomização adversarial de domínio ~\citeonline{ID6} e frameworks hierárquicos profundos ~\citeonline{ID8} exigem altos recursos computacionais, o que pode limitar sua implementação em sistemas de VANTs com restrições de hardware.
+    \item \textbf{Complexidade do Treinamento}: Técnicas que enfatizam adaptabilidade e resiliência, como reconfiguração dinâmica de enxame ~\citeonline{ID11} ou DRL em duas etapas ~\citeonline{ID7}, frequentemente envolvem pipelines de treinamento complexos, demandando expertise significativa e tempo de desenvolvimento.
+    \item \textbf{Implantação no Mundo Real}: Embora os resultados em simulação sejam promissores, métodos como P-DRL ~\citeonline{ID1} e MP3O ~\citeonline{ID2} enfrentam desafios na transição para aplicações reais devido a fatores como imprecisões nos sensores e restrições de comunicação.
 \end{itemize}
 
 
@@ -172,75 +175,75 @@ A resiliência a incertezas ambientais e falhas do sistema foi destacada em estu
 Esta revisão sistemática explorou as contribuições das técnicas de Aprendizado por Reforço (RL) e Aprendizado Profundo (DL) para o avanço dos sistemas de enxame de VANTs, destacando seu potencial transformador na solução de desafios críticos. Nos artigos revisados, foram alcançadas melhorias significativas em escalabilidade, tempo de execução, taxa de sucesso e resiliência. As principais contribuições incluem:
 
 \begin{itemize}
-    \item \textbf{Controle Dinâmico de Formação}: Estudos como \cite{ID1} demonstraram frameworks capazes de realizar controle de formação em tempo real para enxames de VANTs de médio porte, reduzindo a complexidade computacional por meio de algoritmos avançados de RL, como A3C e DQN.
-    \item \textbf{Tomada de Decisão Multiagente e Rastreamento}: Abordagens inovadoras, como MP3O (\cite{ID2}) e conceitos de enxame dinâmico (\cite{ID11}), aprimoraram significativamente a tomada de decisão cooperativa e o rastreamento de múltiplos alvos, melhorando a eficiência operacional e a adaptabilidade.
-    \item \textbf{Alocação de Tarefas e Cobertura de Área}: Métodos como alocação de tarefas Pareto-ótima (\cite{ID4}) e cobertura baseada em FDSAC (\cite{ID3}) apresentaram técnicas eficazes para equilibrar a distribuição da carga de trabalho e otimizar a eficiência do sensoriamento, mesmo em ambientes com restrições de comunicação.
-    \item \textbf{Prevenção de Colisões e Navegação}: Frameworks como os descritos em \cite{ID7} e \cite{ID6} forneceram soluções robustas para navegação em ambientes complexos, com avanços em modelagem de recompensas e randomização de domínio, garantindo operações livres de colisões e melhores transições entre simulação e realidade.
-    \item \textbf{Validações em Ambientes Reais}: Alguns estudos (\cite{ID5}, \cite{ID9}) validaram seus métodos em cenários reais, demonstrando viabilidade prática e oferecendo uma base para melhorias futuras.
+    \item \textbf{Controle Dinâmico de Formação}: Estudos como ~\citeonline{ID1} demonstraram frameworks capazes de realizar controle de formação em tempo real para enxames de VANTs de médio porte, reduzindo a complexidade computacional por meio de algoritmos avançados de RL, como A3C e DQN.
+    \item \textbf{Tomada de Decisão Multiagente }: Abordagens inovadoras, como MP3O ~\citeonline{ID2} e conceitos de enxame dinâmico ~\citeonline{ID11}, aprimoraram significativamente a tomada de decisão cooperativa e o rastreamento de múltiplos alvos, melhorando a eficiência operacional e a adaptabilidade.
+    \item \textbf{Alocação de Tarefas e Cobertura de Área}: Métodos como alocação de tarefas Pareto-ótima ~\citeonline{ID4} e cobertura baseada em FDSAC ~\citeonline{ID3} apresentaram técnicas eficazes para equilibrar a distribuição da carga de trabalho e otimizar a eficiência do sensoriamento, mesmo em ambientes com restrições de comunicação.
+    \item \textbf{Prevenção de Colisões e Navegação}: Frameworks como os descritos em ~\citeonline{ID7} e ~\citeonline{ID6} forneceram soluções robustas para navegação em ambientes complexos, com avanços em modelagem de recompensas e randomização de domínio, garantindo operações livres de colisões e melhores transições entre simulação e realidade.
+    \item \textbf{Validações em Ambientes Reais}: Alguns estudos como ~\citeonline{ID5} e ~\citeonline{ID9} validaram seus métodos em cenários reais, demonstrando viabilidade prática e oferecendo uma base para melhorias futuras.
 \end{itemize}
 
 \subsection{Lacunas e Desafios Não Resolvidos}
 Apesar desses avanços, diversas lacunas permanecem, apontando para oportunidades de pesquisa futura:
 \begin{enumerate}
-    \item \textbf{Escalabilidade para Enxames Maiores}: Embora muitos métodos tenham melhorado a coordenação em enxames de médio porte (por exemplo, 10–20 VANTs em \cite{ID1}), a escalabilidade para enxames maiores ainda é um desafio aberto. São necessários algoritmos eficientes que possam escalar sem um aumento proporcional na complexidade computacional.
-    \item \textbf{Redução da Lacuna entre Simulação e Realidade}: Embora métodos de randomização de domínio (\cite{ID6}) tenham mostrado potencial, a tradução dos resultados simulados para operações no mundo real é limitada por ruído nos sensores, variabilidade ambiental e restrições do sistema. Melhorar a robustez em aplicações reais continua sendo essencial.
+    \item \textbf{Escalabilidade para Enxames Maiores}: Embora muitos métodos tenham melhorado a coordenação em enxames de médio porte (por exemplo, 10–20 VANTs em ~\citeonline{ID1}), a escalabilidade para enxames maiores ainda é um desafio aberto. São necessários algoritmos eficientes que possam escalar sem um aumento proporcional na complexidade computacional.
+    \item \textbf{Redução da Lacuna entre Simulação e Realidade}: Embora métodos de randomização de domínio como em ~\citeonline{ID6} tenham mostrado potencial, a tradução dos resultados simulados para operações no mundo real é limitada por ruído nos sensores, variabilidade ambiental e restrições do sistema. Melhorar a robustez em aplicações reais continua sendo essencial.
     \item \textbf{Eficiência Energética e Otimização de Recursos}: Embora alguns estudos tenham abordado o consumo de energia indiretamente, estratégias dedicadas para otimizar o uso energético em todo o enxame ainda são pouco exploradas.
-    \item \textbf{Métricas Padronizadas e Benchmarking}: A ausência de métricas padronizadas entre os estudos (\cite{ID3}, \cite{ID4}) dificulta comparações diretas. O estabelecimento de um framework unificado de benchmarking facilitaria avaliações consistentes do desempenho dos enxames.
-    \item \textbf{Integração de Sistemas Heterogêneos}: Estudos como \cite{ID12} introduziram esforços iniciais para a coordenação de enxames heterogêneos, mas são necessárias investigações mais aprofundadas sobre o equilíbrio das disparidades de recursos e a alocação de tarefas entre diferentes tipos de VANTs.
+    \item \textbf{Métricas Padronizadas e Benchmarking}: A ausência de métricas padronizadas entre os estudos \citeonline{ID3} e \citeonline{ID4} dificulta comparações diretas. O estabelecimento de um framework unificado de benchmarking facilitaria avaliações consistentes do desempenho dos enxames.
+    \item \textbf{Integração de Sistemas Heterogêneos}: Estudos como \citeonline{ID12} introduziram esforços iniciais para a coordenação de enxames heterogêneos, mas são necessárias investigações mais aprofundadas sobre o equilíbrio das disparidades de recursos e a alocação de tarefas entre diferentes tipos de VANTs.
 \end{enumerate}
 
-\section{Comparação com Estado da Arte}
-A tabela \ref{tab:marl_comparison} ilustra como o trabalho proposto se posiciona em relação aos trabalhos da revisão de literatura. Os critérios adotados na comparação foram:
-\begin{itemize}
-    \item Execução Descentralizada (DE): Verifica se a abordagem adotada pelo trabalho possibilita execução descentralizada pelos agentes, isto é, se o enxame não necessita de um nó central que envia os comandos para execução.
+% \section{Comparação com Estado da Arte}
+% A tabela \ref{tab:marl_comparison} ilustra como o trabalho proposto se posiciona em relação aos trabalhos da revisão de literatura. Os critérios adotados na comparação foram:
+% \begin{itemize}
+%     \item Execução Descentralizada (DE): Verifica se a abordagem adotada pelo trabalho possibilita execução descentralizada pelos agentes, isto é, se o enxame não necessita de um nó central que envia os comandos para execução.
     
-    \item Escalabilidade (Scalable): Verifica se a abordagem de controle do enxame permite a quantidade de agentes pode aumentar sem afetar o desempenho.
+%     \item Escalabilidade (Scalable): Verifica se a abordagem de controle do enxame permite a quantidade de agentes pode aumentar sem afetar o desempenho.
     
-    \item Coordenação (Coord): Se há coordenação entre as ações dos agentes no ambiente que executam a missão.
+%     \item Coordenação (Coord): Se há coordenação entre as ações dos agentes no ambiente que executam a missão.
     
-    \item Espaço de Ação Contínuo (Cont): Verifica se o domínio do espaço de ações dos agente é contínuo ou discreto.
+%     \item Espaço de Ação Contínuo (Cont): Verifica se o domínio do espaço de ações dos agente é contínuo ou discreto.
     
-    \item Visão Computacional (Vision): Se a abordagem utiliza algum tipo de informação visual capturada pelos agentes em seu espaço de observações do algoritmo.
+%     \item Visão Computacional (Vision): Se a abordagem utiliza algum tipo de informação visual capturada pelos agentes em seu espaço de observações do algoritmo.
     
-    \item Comunicação (Comm): Se há troca de informações entre os agentes através de algum meio de comunição.
+%     \item Comunicação (Comm): Se há troca de informações entre os agentes através de algum meio de comunição.
     
-    \item Missão Global (GM): Se a missão do enxame envolve tarefas complexas além das tarefas atividades comuns, como por exemplo: rastreamento de alvos, transporte de carga, cobertura de área e reconstrução 3D.
+%     \item Missão Global (GM): Se a missão do enxame envolve tarefas complexas além das tarefas atividades comuns, como por exemplo: rastreamento de alvos, transporte de carga, cobertura de área e reconstrução 3D.
     
-    \item Planejamento de Caminho (PP): Se o trabalho lida com a atividade de planejamento de trajetória.
+%     \item Planejamento de Caminho (PP): Se o trabalho lida com a atividade de planejamento de trajetória.
     
-    \item Prevenção de Colisões (CA): Se o trabalho aborda a atividade de prevenção de colisões.
+%     \item Prevenção de Colisões (CA): Se o trabalho aborda a atividade de prevenção de colisões.
     
-    \item Controle de Formação (FC): Se o trabalho aborda a atividade do controle de formação do enxame.
-\end{itemize}
+%     \item Controle de Formação (FC): Se o trabalho aborda a atividade do controle de formação do enxame.
+% \end{itemize}
 
-\paragraph{Ajustar tabela para o CAP 5 secao de comparacao com SOTA}
-\begin{table}[h]
-\centering
-\caption{Quadro comparativo da proposta com estado da arte.}
-\label{tab:marl_comparison}
-\begin{adjustbox}{width=\textwidth}
-\begin{tabular}{ccccccccccc}
-\toprule
-  Trabalho &DE&Scalable&Coord&Cont&Vision&Comm&GM&PP&CA&FC \\
+% \paragraph{Ajustar tabela para o CAP 5 secao de comparacao com SOTA}
+% \begin{table}[h]
+% \centering
+% \caption{Quadro comparativo da proposta com estado da arte.}
+% \label{tab:marl_comparison}
+% \begin{adjustbox}{width=\textwidth}
+% \begin{tabular}{ccccccccccc}
+% \toprule
+%   Trabalho &DE&Scalable&Coord&Cont&Vision&Comm&GM&PP&CA&FC \\
   
-\midrule
-  \cite{ID1} &  \xmark & \cmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark &\cmark  \\
-  \cite{ID2} &  \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \cmark & \cmark & \xmark &\xmark \\
-  \cite{ID3} &  \cmark & - & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark & \xmark  \\
-  \cite{ID4} &  \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \xmark\\
-  \cite{ID5} &  \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark \\
-  \cite{ID6} &  \cmark & \xmark & \cmark & \cmark & \cmark & - & \cmark & \cmark & \xmark & \cmark \\
-  \cite{ID7} &  \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark \\
-  \cite{ID8} &  \cmark & \xmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \cmark & \xmark \\
-  \cite{ID9} &  \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark \\
-  \cite{ID10} &  \cmark & \xmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark \\
-  \cite{ID11} &  \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark \\
-  \cite{ID12} &  \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark  \\
-  Proposta &  \cmark & \cmark & \cmark & - & \cmark & \cmark & \cmark & \cmark & \cmark &\cmark  \\
-\bottomrule
-\end{tabular}
-\end{adjustbox}
-\end{table}
+% \midrule
+%   \cite{ID1} &  \xmark & \cmark & \cmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark &\cmark  \\
+%   \cite{ID2} &  \cmark & \xmark & \xmark & \cmark & \xmark & \xmark & \cmark & \cmark & \xmark &\xmark \\
+%   \cite{ID3} &  \cmark & - & \xmark & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark & \xmark  \\
+%   \cite{ID4} &  \cmark & \xmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \xmark\\
+%   \cite{ID5} &  \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \cmark & \cmark & \xmark & \cmark \\
+%   \cite{ID6} &  \cmark & \xmark & \cmark & \cmark & \cmark & - & \cmark & \cmark & \xmark & \cmark \\
+%   \cite{ID7} &  \cmark & \xmark & \cmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \xmark \\
+%   \cite{ID8} &  \cmark & \xmark & \cmark & \cmark & \xmark & \cmark & \cmark & \cmark & \cmark & \xmark \\
+%   \cite{ID9} &  \xmark & \xmark & \cmark & \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark \\
+%   \cite{ID10} &  \cmark & \xmark & \xmark & \cmark & \xmark & \cmark & \xmark & \cmark & \cmark & \xmark \\
+%   \cite{ID11} &  \cmark & \cmark & \cmark & \xmark & \xmark & \xmark & \cmark & \cmark & \cmark & \cmark \\
+%   \cite{ID12} &  \cmark & \xmark & \cmark & \cmark & \xmark & \xmark & \xmark & \xmark & \xmark & \cmark  \\
+%   Proposta &  \cmark & \cmark & \cmark & - & \cmark & \cmark & \cmark & \cmark & \cmark &\cmark  \\
+% \bottomrule
+% \end{tabular}
+% \end{adjustbox}
+% \end{table}
 
 % \section{Atualização do Estado da Arte Assistida por Ferramentas de IA}
 

@@ -8,43 +8,39 @@ Todos os experimentos foram conduzidos em uma estação de trabalho dedicada, eq
 \subsection{Treinamento no AirSim}
 \label{subsec:treinamento_airsim}
 
-No ambiente AirSim, o treinamento dos agentes foi conduzido de forma direta, sem a adoção de aprendizado curricular ou de Máquinas de Recompensa. O objetivo principal dessa etapa foi estabelecer uma linha de base (\textit{baseline}) para avaliar o desempenho do algoritmo MAPPO em um cenário com maior nível de abstração de controle, no qual os agentes interagem com o ambiente por meio de comandos de alto nível interpretados por controladores de voo embarcados.
+No ambiente AirSim, o treinamento dos agentes foi conduzido de forma direta, sem a adoção de aprendizado curricular ou de Máquinas de Recompensa, com o objetivo de estabelecer uma linha de base (\textit{baseline}) para a avaliação do algoritmo MAPPO em um cenário com maior nível de abstração de controle. Nesse contexto, os agentes interagem com o ambiente por meio de comandos de alto nível, os quais são interpretados por controladores de voo embarcados.
 
-O cenário de treinamento foi configurado com um enxame composto por cinco agentes, mantendo fixa a cardinalidade do grupo ao longo de todo o processo de aprendizado. O treinamento totalizou aproximadamente $2 \times 10^{6}$ passos de interação com o ambiente, realizados em um único cenário de simulação, sem paralelização de ambientes. Essa limitação decorreu principalmente do custo computacional associado ao passo de simulação do AirSim, que se mostrou significativamente mais lento quando comparado a simuladores baseados em execução massivamente paralela.
+%O cenário de treinamento considerou um enxame composto por cinco agentes, mantendo fixa a cardinalidade do grupo ao longo de todo o processo de aprendizado. O treinamento totalizou aproximadamente $2 \times 10^{6}$ passos de interação com o ambiente, realizados em um único cenário de simulação, sem paralelização de ambientes. Essa configuração decorreu das limitações computacionais associadas ao custo do passo de simulação no AirSim, significativamente superior ao observado em simuladores que suportam execução massivamente paralela.
 
-Durante o treinamento, o principal gargalo identificado esteve relacionado à etapa de coleta de experiências. O tempo necessário para a execução de cada passo de simulação impactou diretamente a taxa de amostragem do algoritmo MAPPO, reduzindo o número de transições coletadas por unidade de tempo. Como consequência, o treinamento apresentou menor eficiência amostral e maior sensibilidade a instabilidades no aprendizado, especialmente na atualização do crítico.
+O principal gargalo identificado durante o treinamento esteve relacionado à etapa de coleta de experiências, uma vez que o tempo necessário para a execução de cada passo de simulação impactou diretamente a taxa de amostragem do algoritmo MAPPO. Como consequência, observou-se menor eficiência amostral e maior sensibilidade a instabilidades no processo de aprendizado, em particular na atualização da função de valor estimada pelo crítico.
 
-Apesar dessas limitações, o treinamento no AirSim foi fundamental para validar a formulação inicial do problema, a definição dos espaços de observação e ação e o projeto da função de recompensa monolítica. Os resultados obtidos nessa etapa serviram como referência comparativa para os experimentos conduzidos posteriormente no IsaacSim, nos quais foram introduzidas estratégias de aprendizado curricular, paralelização massiva de ambientes e a utilização de Máquinas de Recompensa.
+Apesar dessas limitações, os experimentos conduzidos no AirSim desempenharam um papel fundamental na validação inicial da modelagem do problema, da definição dos espaços de observação e ação e do projeto da função de recompensa monolítica. Os resultados obtidos nessa etapa serviram como referência comparativa para os experimentos realizados posteriormente no ambiente IsaacSim, nos quais foram introduzidas estratégias de aprendizado curricular, paralelização massiva de ambientes e o uso de Máquinas de Recompensa.
 
 
 % ---------------------------------------------------------
 \subsection{Treinamento no IsaacLab}
 \label{subsec:treinamento_isaaclab}
 
-O treinamento no ambiente IsaacLab foi conduzido por meio de uma estratégia estruturada de aprendizado curricular combinada com o uso de Máquinas de Recompensa (\textit{Reward Machines}). Essa abordagem explorou a capacidade de paralelização massiva do simulador, permitindo a execução simultânea de até 2048 ambientes paralelos. Cada estágio do currículo foi treinado por aproximadamente $5 \times 10^{5}$ iterações, resultando em elevada eficiência amostral e maior estabilidade no treinamento do algoritmo MAPPO.
 
-A estratégia curricular adotada seguiu uma progressão incremental de complexidade, na qual políticas treinadas em estágios mais simples foram utilizadas como inicialização para estágios subsequentes. O processo foi estruturado em cinco estágios distintos:
-(i) estabilização em altitude (\textit{hover});
-(ii) navegação ponto a ponto individual;
-(iii) navegação com desvio de obstáculos sem formação;
-(iv) navegação ponto a ponto em formação de enxame; e
-(v) navegação cooperativa em formação com desvio de obstáculos.
+O treinamento dos agentes no ambiente IsaacLab foi estruturado a partir de uma estratégia de aprendizado curricular, na qual a complexidade das tarefas aumenta progressivamente ao longo de diferentes estágios. Essa abordagem visa decompor uma missão cooperativa complexa em subtarefas mais simples, permitindo uma avaliação controlada do impacto da dificuldade do ambiente sobre o processo de aprendizado. Em todos os experimentos, explorou-se a capacidade de paralelização massiva do simulador, com a execução simultânea de até 2048 ambientes paralelos, contribuindo para maior eficiência amostral no treinamento do algoritmo MAPPO.
 
-Formalmente, o processo de treinamento pode ser representado como:
-\[
-\pi^{(1)} \;\xrightarrow\;
-\pi^{(2)} \;\xrightarrow\;
-\pi^{(3)} \;\xrightarrow\;
-\pi^{(4)} \;\xrightarrow\;
-\pi^{(5)},
-\]
-onde cada política $\pi^{(k)}$ é inicializada a partir dos parâmetros finais da política $\pi^{(k-1)}$ e treinada por $5 \times 10^{5}$ iterações em um cenário de maior complexidade. Essa estratégia reduziu a necessidade de reaprendizado de comportamentos básicos em estágios avançados e favoreceu uma convergência mais estável do processo de aprendizado.
+Embora a estratégia inicialmente prevista contemplasse a transferência de aprendizado entre estágios consecutivos, por meio da inicialização das políticas de um estágio a partir dos pesos finais do estágio anterior, dificuldades técnicas associadas à inicialização consistente dos modelos impediram a adoção desse procedimento dentro do prazo disponível para a execução do trabalho. Em função dessas limitações, optou-se por treinar cada estágio de forma independente, mantendo-se, contudo, a progressão incremental de complexidade das tarefas como princípio organizador do currículo.
 
-Ao longo de todos os estágios, a Máquina de Recompensa permaneceu ativa, sendo responsável por modular dinamicamente os pesos da função de recompensa em função do estado lógico corrente de cada agente. Dessa forma, enquanto o aprendizado curricular define a progressão global da dificuldade dos cenários, a RM atua em um nível mais fino de abstração, ajustando as prioridades comportamentais durante a execução. Essa separação de responsabilidades mostrou-se fundamental para viabilizar o aprendizado em cenários cooperativos complexos.
+% Os cinco estágios considerados neste trabalho foram definidos da seguinte forma: 
+% \begin{itemize}
+%     \item \textbf{Estágio 1 - Estabilização em Altitude (\textit{Hover})} 
+%     \item \textbf{Estágio 2 - Navegação Ponto a Ponto Individual}
+%     \item \textbf{Estágio 3 - Navegação com Desvio de Obstáculos sem Formação}.
+%     \item \textbf{Estágio 4 - Navegação Ponto a Ponto em Formação de Enxame}.
+%     \item \textbf{Estágio 5 - Navegação Cooperativa em Formação com Desvio de Obstáculos} 
+% \end{itemize}
+%(i) estabilização em altitude (\textit{hover}); (ii) navegação ponto a ponto individual; (iii) navegação com desvio de obstáculos sem formação; (iv) navegação ponto a ponto em formação de enxame; e (v) navegação cooperativa em formação com desvio de obstáculos. Cada estágio foi treinado a partir de uma inicialização independente dos parâmetros da política, com o número total de interações com o ambiente ajustado de acordo com a complexidade da tarefa. %Especificamente, foram utilizados aproximadamente 200 mil timesteps no Estágio~1, 250 mil no Estágio~2, 300 mil no Estágio~3, 400 mil no Estágio~4 e 1 milhão de timesteps no Estágio~5.
 
-A Figura~\ref{fig:curriculum_training_isaaclab} apresenta uma visão esquemática do fluxo de treinamento curricular adotado no ambiente IsaacLab.
+Adicionalmente, com o objetivo de realizar uma análise de ablação, foi conduzido um experimento de treinamento adicional no Estágio~5 utilizando uma abordagem baseline, na qual não se empregaram Máquinas de Recompensa. Os resultados dessa comparação são discutidos em detalhes no Capítulo~5.
 
+%Em todos os estágios treinados com Máquinas de Recompensa, a RM permaneceu ativa durante todo o processo de aprendizado, sendo responsável por modular dinamicamente a função de recompensa em função do estado lógico corrente de cada agente. Dessa forma, enquanto a separação em estágios define a progressão global da complexidade do problema, a RM atua em um nível mais fino de abstração, orientando o comportamento dos agentes por meio da decomposição estruturada da tarefa. Essa combinação mostrou-se fundamental para viabilizar o aprendizado em cenários cooperativos de crescente complexidade, mesmo na ausência de transferência direta de parâmetros entre estágios.
 
+A Figura~\ref{fig:curriculum_training_isaaclab} apresenta uma visão esquemática da organização dos estágios de treinamento adotados no ambiente IsaacLab.
 
 \begin{figure}[H]
 \centering
@@ -55,8 +51,8 @@ A Figura~\ref{fig:curriculum_training_isaaclab} apresenta uma visão esquemátic
         rectangle,
         draw,
         rounded corners,
-        minimum width=4.2cm,
-        minimum height=1.1cm,
+        minimum width=4.6cm,
+        minimum height=1.2cm,
         align=center,
         font=\small
     },
@@ -69,50 +65,51 @@ A Figura~\ref{fig:curriculum_training_isaaclab} apresenta uma visão esquemátic
 \node[stage] (s1) {
     \textbf{Estágio 1}\\
     Hovering\\
-    $\pi_{1}$
+    Política $\pi_{1}$
 };
 
 \node[stage, below=of s1] (s2) {
     \textbf{Estágio 2}\\
     Navegação ponto a ponto\\
-    $\pi_{1} \rightarrow \pi_{2}$
+    Política $\pi_{2}$
 };
 
 \node[stage, below=of s2] (s3) {
     \textbf{Estágio 3}\\
     Navegação com obstáculos\\
     (sem formação)\\
-    $\pi_{2} \rightarrow \pi_{3}$
+    Política $\pi_{3}$
 };
 
 \node[stage, below=of s3] (s4) {
     \textbf{Estágio 4}\\
     Navegação em formação\\
     (sem obstáculos)\\
-    $\pi_{3} \rightarrow \pi_{4}$
+    Política $\pi_{4}$
 };
 
 \node[stage, below=of s4] (s5) {
     \textbf{Estágio 5}\\
     Formação com obstáculos\\
     (cenário final)\\
-    $\pi_{4} \rightarrow \pi_{5}$
+    Política $\pi_{5}$
 };
 
 % =======================
-% Arrows
+% Arrows (complexity progression)
 % =======================
-\draw[arrow] (s1) -- (s2);
-\draw[arrow] (s2) -- (s3);
-\draw[arrow] (s3) -- (s4);
-\draw[arrow] (s4) -- (s5);
-
+\draw[arrow] (s1) -- node[right, font=\scriptsize]{aumento da complexidade} (s2);
+\draw[arrow] (s2) -- node[right, font=\scriptsize]{aumento da complexidade} (s3);
+\draw[arrow] (s3) -- node[right, font=\scriptsize]{aumento da complexidade} (s4);
+\draw[arrow] (s4) -- node[right, font=\scriptsize]{aumento da complexidade} (s5);
 
 \end{tikzpicture}
 }% End scalebox
-\caption{Fluxo do treinamento curricular adotado no IsaacLab. O treinamento é estruturado em cinco estágios de complexidade crescente, nos quais a política aprendida em cada fase é utilizada como inicialização para o estágio subsequente. A Máquina de Recompensa permanece ativa ao longo de todo o processo, modulando dinamicamente a função de recompensa em função do estado lógico do agente.}
+\caption{Organização dos estágios de treinamento adotados no ambiente IsaacLab.}
+% O processo é estruturado em cinco estágios de complexidade crescente, os quais definem um currículo conceitual para a tarefa de navegação cooperativa. Cada estágio é treinado de forma independente, resultando em políticas distintas ($\pi_{1}$ a $\pi_{5}$), sem transferência direta de parâmetros entre estágios. Em todos os casos, a Máquina de Recompensa permanece ativa durante o treinamento, modulando dinamicamente a função de recompensa de acordo com o estado lógico dos agentes.
 \label{fig:curriculum_training_isaaclab}
 \end{figure}
+
 
 
 % ---------------------------------------------------------
@@ -120,7 +117,7 @@ A Figura~\ref{fig:curriculum_training_isaaclab} apresenta uma visão esquemátic
 \label{subsec:comparacao_simuladores}
 Esta seção apresenta uma análise comparativa do desempenho do algoritmo MAPPO quando treinado nos ambientes AirSim e IsaacSim. O objetivo principal é justificar, de forma quantitativa e qualitativa, a decisão de substituir o AirSim pelo IsaacSim como principal plataforma de simulação ao longo do desenvolvimento deste trabalho. A análise concentra-se no comportamento das funções de custo da política (\textit{policy loss}) e da rede crítica (\textit{value loss}), por serem indicadores diretos de estabilidade e eficiência do processo de aprendizado.
 
-\subsubsection{Análise da \textit{Policy Loss}}
+\subsubsection*{\textbf{Análise da \textit{Policy Loss}}}
 
 A Figura~\ref{fig:airsim_loss_policy_large} apresenta a evolução da \textit{policy loss} durante o treinamento no ambiente AirSim. O processo foi conduzido por aproximadamente $3.5 \times 10^{5}$ iterações, distribuídas ao longo de cerca de quatro dias de execução contínua. Observa-se um comportamento fortemente oscilatório, sem tendência clara de convergência, indicando instabilidade nos gradientes e dificuldade da política em aprender comportamentos consistentes.
 
@@ -149,7 +146,7 @@ O ganho observado está diretamente relacionado à capacidade do IsaacSim de exe
 
 % ---------------------------------------------------------
 
-\subsubsection{Análise da \textit{Value Loss}}
+\subsubsection*{\textbf{Análise da \textit{Value Loss}}}
 
 A Figura~\ref{fig:airsim_loss_value_large} apresenta o comportamento da \textit{value loss} durante o treinamento no ambiente AirSim. Após um decaimento inicial, observa-se que a função de custo da rede crítica passa a oscilar em torno de valores elevados, da ordem de $10^{4}$, indicando instabilidade na estimação da função de valor. Tal comportamento compromete a qualidade dos gradientes utilizados na atualização da política, afetando negativamente o desempenho global do algoritmo MAPPO.
 
@@ -176,8 +173,8 @@ Embora seja possível atribuir parte da instabilidade observada no AirSim às es
 
 \subsection{Discussão}
 
-A comparação entre os resultados obtidos nos ambientes AirSim e IsaacSim evidencia diferenças expressivas em termos de estabilidade, velocidade de convergência e eficiência computacional. Enquanto o AirSim apresentou treinamento lento, ruidoso e com métricas de custo instáveis, o IsaacSim demonstrou desempenho significativamente superior, com rápida convergência e comportamento consistente das funções de custo.
+A comparação entre os resultados iniciais obtidos nos ambientes AirSim e IsaacSim evidencia diferenças expressivas em termos de estabilidade, velocidade de convergência e eficiência computacional. Enquanto o AirSim apresentou treinamento lento, ruidoso e com métricas de custo instáveis, o IsaacSim demonstrou desempenho significativamente superior, com rápida convergência e comportamento consistente das funções de custo.
 
-Esses resultados justificam de forma objetiva a migração da stack de simulação adotada neste trabalho. A capacidade de paralelização em GPU, aliada à integração nativa com frameworks modernos de aprendizado por reforço e ao suporte eficiente ao aprendizado curricular, torna o IsaacSim mais adequado para o treinamento de políticas multiagentes complexas em cenários de enxames de VANTs.
+Esses resultados justificam de forma objetiva a migração da stack de simulação adotada neste trabalho. A capacidade de paralelização em GPU, aliada à integração nativa com frameworks modernos de aprendizado por reforço, torna o IsaacSim mais adequado para o treinamento de políticas multiagentes complexas em cenários de enxames de VANTs.
 
-Dessa forma, os experimentos subsequentes e as análises finais deste trabalho foram conduzidos prioritariamente no ambiente IsaacSim, garantindo maior robustez, reprodutibilidade e escalabilidade ao processo de aprendizado.
+Dessa forma, os experimentos subsequentes e as análises finais deste trabalho foram conduzidos prioritariamente no ambiente IsaacSim.

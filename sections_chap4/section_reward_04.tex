@@ -4,7 +4,7 @@
 A função de recompensa desempenha um papel central no aprendizado por reforço, uma vez que é responsável por quantificar a qualidade das ações executadas pelo agente em relação aos objetivos da tarefa. Em problemas de navegação autônoma e, em especial, em cenários multiagentes cooperativos, o projeto da função de recompensa é um dos aspectos mais críticos do framework, pois define implicitamente o comportamento que será aprendido.
 
 Diferentemente de abordagens supervisionadas, em que o comportamento desejado é explicitamente rotulado, no aprendizado por reforço a função de recompensa atua como um sinal escalar que guia o agente ao longo do processo de exploração do ambiente. Assim, projetar uma função de recompensa adequada pode ser entendido como um processo iterativo e artesanal, no qual diferentes termos e ponderações são ajustados progressivamente a partir da análise empírica do comportamento aprendido. Uma formulação inadequada pode conduzir a políticas instáveis, comportamentos indesejados ou dificuldades de convergência durante o treinamento.
-
+%TODO - referenciar trabalhos que inspiraram a formulação adotada.
 %Na literatura, tarefas de navegação autônoma com veículos aéreos não tripulados, bem como cenários de navegação cooperativa em enxames, geralmente empregam funções de recompensa compostas por múltiplos termos. Essas funções combinam incentivos à progressão em direção ao objetivo, penalizações por colisões ou proximidade excessiva a obstáculos, e termos adicionais relacionados à suavidade da trajetória, eficiência do movimento e manutenção da coesão do grupo. Essa formulação multi-termo permite capturar diferentes aspectos do comportamento desejado, fornecendo um sinal de aprendizado mais informativo aos agentes.
 
 %Diversos trabalhos exploram a utilização de recompensas densas e contínuas para guiar UAVs em tarefas de navegação. Por exemplo, Tovarnov e Bykov propõem uma função de recompensa baseada na qualidade da trajetória, utilizando curvas de Bézier para incentivar deslocamentos suaves e eficientes, ao mesmo tempo em que penalizam comportamentos indesejados como desvios excessivos ou situações de interceptação \cite{Tovarnov2022Reinforcement}. Esse tipo de abordagem evidencia a importância de recompensas que reflitam não apenas o sucesso final da missão, mas também a qualidade do comportamento ao longo do tempo.
@@ -18,7 +18,7 @@ Diferentemente de abordagens supervisionadas, em que o comportamento desejado é
 %Nesse contexto, o projeto da função de recompensa pode ser entendido como um processo iterativo e empírico, no qual diferentes termos e ponderações são ajustados progressivamente a partir da observação do comportamento emergente dos agentes. Essa perspectiva motiva a adoção de formulações modulares e estruturadas, capazes de incorporar conhecimento prévio sobre a tarefa e de facilitar a extensão para abordagens mais expressivas, como o uso de Máquinas de Recompensa, conforme será discutido nas subseções seguintes.
 
 
-\subsubsection{Função de Recompensa no Ambiente AirSim}
+\subsubsection*{\textbf{Recompensa no ambiente AirSim}}
 
 A função de recompensa foi desenvolvida de forma incremental e empírica, a partir de múltiplos ciclos de treinamento e análise do comportamento emergente do enxame. Nessa etapa inicial, adotou-se uma formulação monolítica, sem o uso de Máquinas de Recompensa (\textit{Reward Machines}), composta exclusivamente por termos contínuos, o que permitiu avaliar de maneira controlada a contribuição individual de cada componente da recompensa no aprendizado multiagente.
 
@@ -58,9 +58,9 @@ onde $D_{ij}^t$ representa a distância euclidiana entre os agentes $i$ e $j$. O
 Essa formulação, embora eficaz para o ambiente AirSim, revelou limitações quando considerada em cenários de maior fidelidade física e com políticas de controle em nível dinâmico, motivando sua posterior reformulação e extensão por meio do uso de Máquinas de Recompensa, conforme descrito nas seções seguintes.
 
 
-\subsubsection{Função de Recompensa no Ambiente IsaacSim}
+\subsubsection*{\textbf{Recompensa no Ambiente IsaacSim}}
 
-\paragraph{Máquinas de Recompensa no Aprendizado Curricular}
+%\paragraph{Máquinas de Recompensa no Aprendizado Curricular}
 
 Neste trabalho, o aprendizado curricular e as Máquinas de Recompensa (\textit{Reward Machines} – RM) são empregados de forma complementar, porém com funções conceitualmente distintas. O aprendizado curricular organiza o processo de treinamento ao longo de diferentes cenários, aumentando gradualmente a complexidade das tarefas — desde comportamentos básicos de estabilização até a navegação cooperativa em formação com desvio de obstáculos — com o objetivo de facilitar a convergência do aprendizado.
 
@@ -180,9 +180,9 @@ lógicas e a função de transição, é apresentada no Apêndice~\ref{apendice:
 
 
 
-\subsubsection{Considerações}
+\subsubsection*{\textbf{Considerações}}
 
-A utilização de Máquinas de Recompensa em conjunto com uma função de recompensa parametrizada por estados permitiu estruturar o aprendizado de forma progressiva e controlada, mantendo uma única formulação funcional ao longo de todos os cenários de treinamento. Essa abordagem favoreceu a estabilidade do aprendizado e a interpretação dos comportamentos emergentes, ao explicitar a relação entre objetivos da tarefa e prioridades comportamentais dos agentes.
+%A utilização de Máquinas de Recompensa em conjunto com uma função de recompensa parametrizada por estados permitiu estruturar o aprendizado de forma progressiva e controlada, mantendo uma única formulação funcional ao longo de todos os cenários de treinamento. Essa abordagem favoreceu a estabilidade do aprendizado e a interpretação dos comportamentos emergentes, ao explicitar a relação entre objetivos da tarefa e prioridades comportamentais dos agentes.
 
 Nos apêndices~\ref{apendice:rm_isaacsim} e \ref{apendice:reward_isaacsim} são apresentadas a definição formal completa da Máquina de Recompensa e a formulação matemática detalhada da função de recompensa adotada no ambiente IsaacSim.
 % =========================================================

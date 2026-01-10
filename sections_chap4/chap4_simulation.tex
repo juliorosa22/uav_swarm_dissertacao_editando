@@ -53,7 +53,7 @@ Além do desvio de obstáculos, a tarefa impôs restrições adicionais relacion
 %**Melhorias
 %TODO -- Adicionar informações sobre os termos, métricas e condições de término dos episódios em cada simulador.
 % Explicar oque signigica um step, episodio, etc.para que o leitor compreenda melhor as condições na proxima subseção.
-\subsubsection{Ambiente AirSim}
+\subsubsection*{\textbf{Ambiente AirSim}}
 
 No ambiente AirSim, a tarefa foi modelada considerando o uso de controladores de voo de baixo nível, como ArduPilot e PX4, fornecidos pelo próprio simulador. Dessa forma, a política de aprendizado por reforço atuou em um nível de abstração mais elevado, sendo responsável apenas pela coordenação dos comandos enviados aos controladores de voo, sem a necessidade de aprender diretamente a estabilização do voo.
 
@@ -72,6 +72,7 @@ O término de um episódio no AirSim ocorreu com base em um conjunto de condiç�
 \centering
 \caption{Condições de término e reinicialização de episódios no AirSim.}
 \label{tab:termino_airsim}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{ll}
 \hline
 \textbf{Condição} & \textbf{Descrição} \\
@@ -82,11 +83,12 @@ Objetivo alcançado & Centroide do enxame a menos de 3 m da posição final \\
 Limite de passos & Número máximo de steps do episódio (1000 steps) \\
 \hline
 \end{tabular}
+}
 \end{table}
 
 A condição de dispersão do enxame foi utilizada para encerrar episódios nos quais os agentes se afastavam excessivamente da formação desejada, enquanto a condição de desvio do alvo evitou episódios longos que não apresentavam progressos significativos em direção ao objetivo. O sucesso da missão foi caracterizado pela aproximação do centroide do enxame à posição final desejada.
 
-\subsubsection{Ambiente IsaacSim}
+\subsubsection*{\textbf{Ambiente IsaacSim}}
 
 No ambiente IsaacSim, a tarefa foi modelada de forma distinta, uma vez que o simulador não fornece, de maneira nativa, controladores de voo equivalentes ao PX4 ou ArduPilot. Assim, os agentes precisaram aprender políticas de controle de nível mais baixo, incluindo aspectos relacionados à estabilização do voo, o que impactou diretamente as condições de término e reinicialização dos episódios.
 
@@ -94,10 +96,11 @@ Durante as iterações iniciais de treinamento, era comum que os agentes perdess
 
 As condições de término e reinicialização adotadas no IsaacSim estão resumidas na Tabela~\ref{tab:termino_isaacsim}.
 
-\begin{table}[htbp]
+\begin{table}[ht]
 \centering
 \caption{Condições de término e reinicialização de episódios no IsaacSim.}
 \label{tab:termino_isaacsim}
+\resizebox{\textwidth}{!}{
 \begin{tabular}{ll}
 \hline
 \textbf{Condição} & \textbf{Descrição} \\
@@ -108,11 +111,12 @@ Fora dos limites & Agente fora dos limites espaciais do ambiente \\
 Tempo máximo & Duração máxima do episódio excedida \\
 \hline
 \end{tabular}
+}
 \end{table}
 
 Com o objetivo de facilitar o aprendizado de comportamentos complexos, foi adotada no IsaacSim uma estratégia de aprendizado curricular, na qual o treinamento foi dividido em cinco estágios progressivos. Cada estágio buscou simplificar o comportamento a ser aprendido, adicionando gradualmente novos desafios à tarefa.
 
-\subsubsubsection{Estágios do Curriculum Learning}
+\subsubsubsection*{\textbf{Estágios de Aprendizado}}
 %\label{subsubsec:estagios_curriculum}
 
 O treinamento dos agentes no ambiente IsaacSim foi estruturado segundo uma estratégia de aprendizado curricular (\textit{Curriculum Learning}), na qual a tarefa global de navegação cooperativa em formação com desvio de obstáculos foi decomposta em cinco estágios progressivos. Cada estágio foi projetado para enfatizar um subconjunto específico de habilidades, permitindo que os agentes adquirissem comportamentos básicos antes de serem expostos a desafios mais complexos. A Figura~\ref{fig:curriculum_overview} apresenta uma visão geral dos cenários adotados em cada etapa do currículo.
@@ -185,7 +189,7 @@ A definição do espaço de estados (ou observações) e do espaço de ações c
 
 Cada agente observa apenas informações locais e parciais do ambiente, caracterizando um problema de decisão sob observabilidade parcial. Em contrapartida, durante a fase de treinamento centralizado, informações adicionais de caráter global podem ser exploradas pelo crítico, conforme o paradigma de \textit{Centralized Training with Decentralized Execution} (CTDE). Essa distinção permite que o aprendizado seja auxiliado por um ``oráculo'' durante o treinamento, enquanto a política aprendida permanece executável de forma descentralizada, utilizando exclusivamente observações locais.
 
-\subsubsection{Espaço de Observação}
+\subsubsection*{\textbf{Espaço de Observação}}
 
 De forma geral, o vetor de observação de cada agente é composto por informações proprioceptivas, informações relativas à tarefa e percepções do ambiente. As informações proprioceptivas incluem estados cinemáticos do próprio agente, como posição, velocidade e orientação. As informações relativas à tarefa abrangem medidas associadas à posição objetivo, permitindo que o agente avalie seu progresso em relação à missão. Por fim, as percepções do ambiente são obtidas a partir de sensores simulados, como sensores de distância, raycasts ou câmeras, utilizados para detectar obstáculos e a presença de outros agentes no entorno.
 
@@ -200,12 +204,11 @@ A Figura~\ref{fig:obs_action_space} ilustra de forma conceitual o espaço de obs
     \label{fig:obs_action_space}
 \end{figure}
 
-\subsubsection{Espaço de Ações}
+\subsubsection*{\textbf{Espaço de Ações}}
 
 O espaço de ações adotado neste trabalho é contínuo, refletindo a natureza do controle de VANTs. As ações correspondem a comandos que influenciam diretamente a dinâmica do agente, podendo representar velocidades desejadas, acelerações, empuxos ou momentos, a depender do nível de abstração adotado pelo simulador. Essa modelagem permite a aplicação de algoritmos de aprendizado por reforço contínuo e a representação adequada de comportamentos de navegação e controle.
 
-\subsubsection{Instanciação no Ambiente AirSim}
-
+\subsubsection*{\textbf{Instanciação no Ambiente AirSim}}
 No ambiente AirSim, o espaço de observação de cada agente é multimodal, combinando informações visuais e vetoriais provenientes de diferentes sensores simulados. Para um agente $i$ no instante $t$, a observação local é definida como:
 \[
 \mathbf{o}_i^t =
@@ -254,7 +257,7 @@ v_{z,i}^t &
 onde $v_{x,i}^t$, $v_{y,i}^t$ e $v_{z,i}^t$ representam comandos normalizados de velocidade linear ao longo dos eixos cartesianos, e $\dot{\psi}_i^t$ corresponde ao comando normalizado de taxa de guinada (\textit{yaw rate}). Esses comandos são interpretados por um controlador de voo embarcado, como PX4 ou ArduPilot, responsável pela estabilização e pelo controle dinâmico do VANT. Dessa forma, a política de aprendizado por reforço atua em um nível de abstração elevado, focando em decisões de navegação e deslocamento, enquanto o controle de baixo nível é delegado ao controlador interno do simulador.
 
 
-\subsubsection{Instanciação no Ambiente IsaacSim}
+\subsubsection*{\textbf{Instanciação no Ambiente IsaacSim}}
 
 No ambiente IsaacSim, o espaço de observação adotado para cada agente é definido como um vetor contínuo de dimensão fixa. Diferentemente do AirSim, não são utilizadas observações visuais, sendo o estado completamente descrito por informações vetoriais diretamente relacionadas à dinâmica do VANT, à tarefa e às interações locais com o ambiente e com outros agentes. Para um agente $i$ no instante $t$, a observação individual é dada por:
 \[
@@ -326,7 +329,7 @@ onde $T_i^t$ representa o comando normalizado de empuxo total aplicado ao VANT, 
 
 
 
-\subsubsection{Síntese Comparativa}
+\subsubsection*{\textbf{Síntese Comparativa}}
 
 A Figura~\ref{fig:action_space_comparison} apresenta uma visão comparativa dos fluxos de controle e dos níveis de abstração associados aos espaços de ações adotados nos ambientes AirSim e IsaacSim. Observa-se que, embora ambos utilizem espaços de ações contínuos de mesma dimensionalidade, o significado físico dos comandos e a responsabilidade atribuída à política de aprendizado diferem substancialmente entre os simuladores.
 

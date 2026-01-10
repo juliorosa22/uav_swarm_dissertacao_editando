@@ -1,26 +1,26 @@
 \section{Implementação do Algoritmo MAPPO}
 \label{sec:algoritmo_aprendizado}
 
-Este capítulo descreve a implementação prática do algoritmo \textit{Multi-Agent Proximal Policy Optimization} (MAPPO) nos ambientes AirSim e IsaacSim. Em ambos os casos, a formulação do algoritmo segue como base o trabalho de referência apresentado em \citeonline{yu2021mappo}. No entanto, pequenas diferenças de implementação são observadas em função das bibliotecas de aprendizado por reforço adotadas em cada simulador, bem como das particularidades da integração entre o algoritmo e o ambiente de simulação.
+Esta seção descreve a implementação prática do algoritmo \textit{Multi-Agent Proximal Policy Optimization} (MAPPO). Em ambos os casos, a formulação do algoritmo segue como base o trabalho de referência apresentado em \citeonline{yu2021mappo}. No entanto, diferenças de implementação são observadas em função das bibliotecas de aprendizado por reforço adotadas em cada simulador, bem como das particularidades da integração entre o algoritmo e o ambiente de simulação.
 
 O foco desta seção está nas arquiteturas das redes neurais do ator e do crítico, uma vez que as principais diferenças entre as duas implementações decorrem da natureza das observações disponíveis em cada ambiente. Enquanto o AirSim fornece observações multimodais, incluindo dados visuais e vetoriais, o IsaacSim adota um espaço de observação puramente vetorial, mais próximo do nível dinâmico do controle. Essas diferenças motivaram escolhas arquiteturais distintas, discutidas ao longo desta seção.
 
 
-\subsection{Implementação no Ambiente AirSim com TorchRL}
+\subsection{Implementação no AirSim}
 \label{subsec:mappo_airsim_torchrl}
 
-\subsubsection{Desafios na Integração entre Simulador e Algoritmo}
-\label{subsubsec:airsim_integracao}
+% \subsubsection*{\textbf{Desafios na Integração entre Simulador e Algoritmo}}
+% \label{subsubsec:airsim_integracao}
 
 A implementação do algoritmo MAPPO no ambiente AirSim apresentou desafios específicos relacionados à integração entre o simulador e a biblioteca de aprendizado por reforço adotada. Em particular, incompatibilidades entre versões de dependências do AirSim e da biblioteca TorchRL impossibilitaram a execução conjunta de ambos em um único ambiente de execução.
 
-Para contornar esse problema, optou-se pela utilização de contêineres Docker, isolando o simulador AirSim e o processo de treinamento do algoritmo de aprendizado por reforço em ambientes distintos. A comunicação entre os dois processos foi realizada por meio de sockets UDP em uma interface de rede local, permitindo o envio das observações do ambiente ao algoritmo e o retorno das ações computadas pela política.
+%Para contornar esse problema, optou-se pela utilização de contêineres Docker, isolando o simulador AirSim e o processo de treinamento do algoritmo de aprendizado por reforço em ambientes distintos. A comunicação entre os dois processos foi realizada por meio de sockets UDP em uma interface de rede local, permitindo o envio das observações do ambiente ao algoritmo e o retorno das ações computadas pela política.
 
-Essa abordagem possibilitou manter o uso do AirSim, que oferece uma camada de abstração realista baseada em controladores de voo como PX4 e ArduPilot, ao custo de um aumento na complexidade da infraestrutura de treinamento. Como consequência, fatores como latência de comunicação, sincronização entre processos e taxa efetiva de amostragem tornaram-se aspectos relevantes no projeto do sistema, exigindo cuidados adicionais na definição do número de passos por episódio e no balanceamento entre estabilidade do treinamento e desempenho computacional.
+%Essa abordagem possibilitou manter o uso do AirSim, que oferece uma camada de abstração realista baseada em controladores de voo como PX4 e ArduPilot, ao custo de um aumento na complexidade da infraestrutura de treinamento. Como consequência, fatores como latência de comunicação, sincronização entre processos e taxa efetiva de amostragem tornaram-se aspectos relevantes no projeto do sistema, exigindo cuidados adicionais na definição do número de passos por episódio e no balanceamento entre estabilidade do treinamento e desempenho computacional.
 
-Apesar dessas limitações, essa arquitetura permitiu explorar plenamente as capacidades sensoriais do AirSim, em especial a utilização de imagens de profundidade, e serviu como base para os experimentos iniciais do trabalho.
+%Apesar dessas limitações, essa arquitetura permitiu explorar plenamente as capacidades sensoriais do AirSim, em especial a utilização de imagens de profundidade, e serviu como base para os experimentos iniciais do trabalho.
 
-\subsubsection{Arquitetura das Redes Neurais no AirSim}
+\subsubsection*{\textbf{Arquitetura das Redes Neurais}}
 \label{subsubsec:airsim_redes}
 
 As arquiteturas das redes neurais do ator e do crítico no ambiente AirSim foram definidas considerando a natureza multimodal do espaço de observação, que combina informações visuais provenientes de imagens de profundidade e observações vetoriais relacionadas ao estado cinemático do agente, à posição do objetivo, à presença de obstáculos e à configuração do enxame.
@@ -49,12 +49,12 @@ A arquitetura da rede do crítico é apresentada na Figura~\ref{fig:mappo_critic
 
 A arquitetura do crítico demonstra uma maior simplicidade em relação ao conjunto de entradas utilizadas, quando comparada à rede do ator. Em particular, informações visuais provenientes das imagens de profundidade não foram incorporadas ao crítico. Essa escolha foi motivada pela intenção de estimar o retorno esperado a partir de uma visão global e abstrata do estado do enxame, enfatizando relações entre agentes, progresso coletivo e condições de navegação, em vez de detalhes perceptivos locais.
 
-Embora essa simplificação contribua para reduzir a dimensionalidade do espaço de entrada e o número total de parâmetros do modelo, seus efeitos práticos revelaram limitações importantes. Como será discutido na Seção~\ref{subsec:mappo_comparacao}, a ausência de informações perceptivas mais ricas no crítico resultou em dificuldades na estimativa precisa do valor de estado, refletidas em valores elevados da função de perda do crítico durante o treinamento. Esse comportamento impactou negativamente a estabilidade do aprendizado, evidenciando a importância de um balanceamento adequado entre simplicidade arquitetural e expressividade do modelo no contexto de aprendizado multiagente.
+Embora essa simplificação contribua para reduzir a dimensionalidade do espaço de entrada e o número total de parâmetros do modelo, seus efeitos práticos revelaram limitações importantes. Como será discutido na Seção~\ref{subsec:comparacao_simuladores}, a ausência de informações perceptivas mais ricas no crítico resultou em dificuldades na estimativa precisa do valor de estado, refletidas em valores elevados da função de perda do crítico durante o treinamento. Esse comportamento impactou negativamente a estabilidade do aprendizado, evidenciando a importância de um balanceamento adequado entre simplicidade arquitetural e expressividade do modelo no contexto de aprendizado multiagente.
 
 
 
 %%%%% IsaacLAB
-\subsection{Implementação no Ambiente IsaacLab}
+\subsection{Implementação no IsaacSim}
 \label{subsec:mappo_isaaclab}
 
 A implementação do algoritmo MAPPO no ambiente IsaacSim foi realizada utilizando o framework
@@ -68,7 +68,7 @@ permitindo acesso direto às observações do simulador e maior eficiência na c
 Essa integração favoreceu maior estabilidade numérica e taxas de amostragem significativamente
 superiores quando comparadas à abordagem baseada em processos desacoplados.
 
-\subsubsection{Arquitetura das Redes Neurais}
+\subsubsection*{\textbf{Arquitetura das Redes Neurais}}
 \label{subsubsec:isaaclab_redes}
 
 No ambiente IsaacLab, tanto a política (ator) quanto o crítico foram implementados utilizando
@@ -115,7 +115,7 @@ camadas ocultas de 128 neurônios, produzindo diretamente os comandos contínuos
 
 
 O crítico adota uma arquitetura mais profunda, composta por três camadas ocultas de dimensões
-128, 128 e 64 neurônios. Sob o paradigma de treinamento centralizado, sua entrada é formada pela
+256, 256 e 128 neurônios. Sob o paradigma de treinamento centralizado, sua entrada é formada pela
 concatenação direta das observações individuais de todos os agentes, representando o estado
 global do enxame. Essa configuração permite estimar o valor do estado considerando a configuração
 completa do sistema, sem o uso de mecanismos adicionais de atenção.
@@ -136,11 +136,11 @@ completa do sistema, sem o uso de mecanismos adicionais de atenção.
 \node[box] (state) {Estado Global\\
 \scriptsize Concatenação das\\ observações dos agentes\\ (N x 23)};
 \node[box, below=of state] (fc1) {MLP\\
-128 neurônios + ReLU};
+256 neurônios + ReLU};
 \node[box, below=of fc1] (fc2) {MLP\\
-128 neurônios + ReLU};
+256 neurônios + ReLU};
 \node[box, below=of fc2] (fc3) {MLP\\
-64 neurônios + ReLU};
+128 neurônios + ReLU};
 \node[box, below=of fc3] (value) {Valor do Estado\\
 $V(s)$};
 
